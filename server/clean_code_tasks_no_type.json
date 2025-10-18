@@ -1,162 +1,212 @@
 [
   {
-    "id": "cc-naming-1",
+    "id": 1,
     "name": "Cart Total with Tax & Discount",
     "description": "Compute final total for (price, qty) items with discount then tax; return rounded total.",
     "topic": "Naming & Intent",
-    "correct_code": "from typing import List, Tuple\n\nTAX_RATE = 0.18\n\ndef calculate_final_total(items: List[Tuple[float, int]], discount_pct: float) -> float:\n    \"\"\"Return final total with discount then tax applied, rounded to 2 decimals.\"\"\"\n    if not 0 <= discount_pct <= 1:\n        raise ValueError(\"discount_pct must be between 0 and 1\")\n    subtotal = sum(price * qty for price, qty in items)\n    discounted = subtotal * (1 - discount_pct)\n    taxed = discounted * (1 + TAX_RATE)\n    return round(taxed, 2)\n",
-    "messed_code": "def a(b,c):\n    d=0\n    for e in b:\n        d+=e[0]*e[1]\n    d=d-(d*c)\n    d=d+(d*0.18)\n    return round(d,2)\n"
+    "correct_code": "from typing import List, Tuple\n\nTAX_RATE = 0.18\n\ndef calculate_final_total(items: List[Tuple[float, int]], discount_pct: float) -> float:\n    \"\"\"Return final total with discount then tax applied, rounded to 2 decimals.\"\"\"\n    if not 0 <= discount_pct <= 1:\n        raise ValueError(\"discount_pct must be between 0 and 1\")\n    subtotal = sum(price * qty for price, qty in items)\n    discounted = subtotal * (1 - discount_pct)\n    taxed = discounted * (1 + TAX_RATE)\n    return round(taxed, 2)\n\ndef main():\n    items = [(10.0, 2), (5.0, 3)]\n    discount_pct = float(input(\"Enter discount percentage (0-1): \"))\n    print(calculate_final_total(items, discount_pct))\n",
+    "messed_code": "def a(b):\n    c=float(input('discount: '))\n    d=0\n    for e in b:\n        d+=e[0]*e[1]\n    d=d-(d*c)\n    d=d+(d*0.18)\n    return round(d,2)\n\ndef main():\n    items = [(10.0, 2), (5.0, 3)]\n    print(a(items))\n",
+    "expected_args": "[]",
+    "expected_inputs": "[\"float\"]"
   },
   {
-    "id": "cc-naming-2",
+    "id": 2,
+    "name": "User Input Discount",
+    "description": "Compute cart total with user-provided discount percentage via input().",
+    "topic": "User Input Handling",
+    "correct_code": "from typing import List, Tuple\n\nTAX_RATE = 0.18\n\ndef calculate_final_total(items: List[Tuple[float, int]]) -> float:\n    \"\"\"Return final total with user-provided discount then tax, rounded to 2 decimals.\"\"\"\n    discount_pct = float(input(\"Enter discount percentage (0-1): \"))\n    if not 0 <= discount_pct <= 1:\n        raise ValueError(\"discount_pct must be between 0 and 1\")\n    subtotal = sum(price * qty for price, qty in items)\n    discounted = subtotal * (1 - discount_pct)\n    taxed = discounted * (1 + TAX_RATE)\n    return round(taxed, 2)\n\ndef main():\n    items = [(10.0, 2), (5.0, 3)]\n    print(calculate_final_total(items))\n",
+    "messed_code": "def a(b):\n    c=float(input('discount: '))\n    d=0\n    for e in b:\n        d+=e[0]*e[1]\n    d=d-(d*c)\n    d=d+(d*0.18)\n    return round(d,2)\n\ndef main():\n    items = [(10.0, 2), (5.0, 3)]\n    print(a(items))\n",
+    "expected_args": "[]",
+    "expected_inputs": "[\"float\"]"
+  },
+  {
+    "id": 3,
     "name": "Average Session Duration",
     "description": "Given seconds list, return average positive duration in minutes (1 decimal).",
     "topic": "Naming & Intent",
     "correct_code": "from typing import List\n\ndef average_session_minutes(durations_sec: List[int]) -> float:\n    \"\"\"Return average positive duration in minutes, rounded to 1 decimal.\"\"\"\n    valid = [d for d in durations_sec if d > 0]\n    if not valid:\n        return 0.0\n    avg_seconds = sum(valid) / len(valid)\n    return round(avg_seconds / 60, 1)\n",
-    "messed_code": "def f(x):\n    s=0\n    n=0\n    for i in x:\n        if i>0:\n            s+=i\n            n+=1\n    if n==0:\n        return 0\n    return round((s/n)/60,1)\n"
+    "messed_code": "def f(x):\n    s=0\n    n=0\n    for i in x:\n        if i>0:\n            s+=i\n            n+=1\n    if n==0:\n        return 0\n    return round((s/n)/60,1)\n",
+    "expected_args": "[List[int]]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "cc-dry-1",
+    "id": 4,
     "name": "Shipping Cost Calculator",
     "description": "Compute shipping: base + weight*per_kg; premium users get 20% off. Avoid duplication.",
     "topic": "DRY (Don't Repeat Yourself)",
     "correct_code": "BASE_FEE = 5.0\nPER_KG = 1.2\nPREMIUM_DISCOUNT = 0.2\n\ndef shipping_cost(weight_kg: float, is_premium: bool) -> float:\n    if weight_kg < 0:\n        raise ValueError(\"weight_kg must be non-negative\")\n    cost = BASE_FEE + (weight_kg * PER_KG)\n    if is_premium:\n        cost *= (1 - PREMIUM_DISCOUNT)\n    return round(cost, 2)\n",
-    "messed_code": "def cost_regular(w):\n    if w<0:\n        raise Exception('bad')\n    c=5+(w*1.2)\n    return round(c,2)\n\ndef cost_premium(w):\n    if w<0:\n        raise Exception('bad')\n    c=5+(w*1.2)\n    c=c-(c*0.2)\n    return round(c,2)\n"
+    "messed_code": "def cost_regular(w):\n    if w<0:\n        raise Exception('bad')\n    c=5+(w*1.2)\n    return round(c,2)\n\ndef cost_premium(w):\n    if w<0:\n        raise Exception('bad')\n    c=5+(w*1.2)\n    c=c-(c*0.2)\n    return round(c,2)\n",
+    "expected_args": "[float, bool]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "cc-dry-2",
+    "id": 5,
     "name": "Price Formatter",
     "description": "Format prices uniformly as $<amount> with 2 decimals using a single helper.",
     "topic": "DRY (Don't Repeat Yourself)",
     "correct_code": "def format_price(amount: float) -> str:\n    return f\"${amount:.2f}\"\n\ndef cart_total_str(total: float) -> str:\n    return format_price(total)\n\ndef item_price_str(price: float) -> str:\n    return format_price(price)\n",
-    "messed_code": "def cart_total_str(t):\n    return \"$\"+str(round(t,2))\n\ndef item_price_str(p):\n    return \"$\"+str(round(p,2))\n"
+    "messed_code": "def cart_total_str(t):\n    return \"$\"+str(round(t,2))\n\ndef item_price_str(p):\n    return \"$\"+str(round(p,2))\n",
+    "expected_args": "[float]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "cc-srp-1",
+    "id": 6,
     "name": "Email Validator",
     "description": "Check email validity using small single-purpose helpers.",
     "topic": "Small Functions & Single Responsibility",
     "correct_code": "def has_single_at(email: str) -> bool:\n    return email.count(\"@\") == 1\n\ndef parts_non_empty(email: str) -> bool:\n    local, domain = email.split(\"@\")\n    return bool(local and domain)\n\ndef domain_has_dot(email: str) -> bool:\n    domain = email.split(\"@\")[1]\n    return \".\" in domain and not domain.startswith('.') and not domain.endswith('.')\n\ndef is_valid_email(email: str) -> bool:\n    return has_single_at(email) and parts_non_empty(email) and domain_has_dot(email)\n",
-    "messed_code": "def ok(e):\n    if e.count('@')!=1:\n        return False\n    x=e.split('@')\n    if len(x[0])==0 or len(x[1])==0:\n        return False\n    if '.' not in x[1] or x[1].startswith('.') or x[1].endswith('.'):\n        return False\n    return True\n"
+    "messed_code": "def ok(e):\n    if e.count('@')!=1:\n        return False\n    x=e.split('@')\n    if len(x[0])==0 or len(x[1])==0:\n        return False\n    if '.' not in x[1] or x[1].startswith('.') or x[1].endswith('.'):\n        return False\n    return True\n",
+    "expected_args": "[str]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "cc-srp-2",
+    "id": 7,
     "name": "Normalize Names",
     "description": "Convert '  first  LAST  ' → 'First Last' via focused helpers.",
     "topic": "Small Functions & Single Responsibility",
     "correct_code": "def _trim_spaces(s: str) -> str:\n    return \" \".join(s.strip().split())\n\ndef _capitalise(parts):\n    return [p.capitalize() for p in parts]\n\ndef normalize_name(raw: str) -> str:\n    compact = _trim_spaces(raw)\n    return \" \".join(_capitalise(compact.split(\" \")))\n",
-    "messed_code": "def n(s):\n    s=s.strip()\n    s=\" \".join(s.split())\n    z=[]\n    for x in s.split(\" \"):\n        z.append(x[0].upper()+x[1:].lower() if x else x)\n    return \" \".join(z)\n"
+    "messed_code": "def n(s):\n    s=s.strip()\n    s=\" \".join(s.split())\n    z=[]\n    for x in s.split(\" \"):\n        z.append(x[0].upper()+x[1:].lower() if x else x)\n    return \" \".join(z)\n",
+    "expected_args": "[str]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "cc-constants-1",
+    "id": 8,
     "name": "Circle Area with Pi Constant",
     "description": "Compute circle area using a named constant instead of a magic number.",
     "topic": "Magic Numbers & Constants",
     "correct_code": "PI = 3.141592653589793\n\ndef circle_area(radius: float) -> float:\n    if radius < 0:\n        raise ValueError(\"radius must be non-negative\")\n    return PI * radius * radius\n",
-    "messed_code": "def circle_area(r):\n    if r<0:\n        raise Exception('no')\n    return 3.14*r*r\n"
+    "messed_code": "def circle_area(r):\n    if r<0:\n        raise Exception('no')\n    return 3.14*r*r\n",
+    "expected_args": "[float]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "cc-constants-2",
+    "id": 9,
     "name": "HTTP Timeout Configuration",
     "description": "Provide default timeouts via constants instead of repeated literals.",
     "topic": "Magic Numbers & Constants",
     "correct_code": "DEFAULT_CONNECT_TIMEOUT = 3.0\nDEFAULT_READ_TIMEOUT = 5.0\n\ndef timeouts(custom_connect: float | None = None, custom_read: float | None = None) -> tuple[float, float]:\n    connect = custom_connect if custom_connect is not None else DEFAULT_CONNECT_TIMEOUT\n    read = custom_read if custom_read is not None else DEFAULT_READ_TIMEOUT\n    return (connect, read)\n",
-    "messed_code": "def timeouts(cc=None, rr=None):\n    if cc is None:\n        cc=3\n    if rr is None:\n        rr=5\n    return (cc, rr)\n"
+    "messed_code": "def timeouts(cc=None, rr=None):\n    if cc is None:\n        cc=3\n    if rr is None:\n        rr=5\n    return (cc, rr)\n",
+    "expected_args": "[float | None, float | None]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "cc-guards-1",
+    "id": 10,
     "name": "Safe Division with Guard",
     "description": "Divide a by b; early return 0.0 for b==0; illustrate guard clause.",
     "topic": "Guard Clauses & Early Return",
     "correct_code": "def safe_div(a: float, b: float) -> float:\n    if b == 0:\n        return 0.0\n    return a / b\n",
-    "messed_code": "def safe_div(a,b):\n    if b!=0:\n        return a/b\n    else:\n        return 0.0\n"
+    "messed_code": "def safe_div(a,b):\n    if b!=0:\n        return a/b\n    else:\n        return 0.0\n",
+    "expected_args": "[float, float]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "cc-guards-2",
+    "id": 11,
     "name": "Find User by Id",
     "description": "Return user dict from list by id; use guard for empty/None input.",
     "topic": "Guard Clauses & Early Return",
     "correct_code": "from typing import Optional\n\ndef find_user(users: list[dict], user_id: int) -> Optional[dict]:\n    if not users:\n        return None\n    for u in users:\n        if u.get(\"id\") == user_id:\n            return u\n    return None\n",
-    "messed_code": "def find_user(users, uid):\n    if users is None or len(users)==0:\n        return None\n    res=None\n    for u in users:\n        if 'id' in u and u['id']==uid:\n            res=u\n    return res\n"
+    "messed_code": "def find_user(users, uid):\n    if users is None or len(users)==0:\n        return None\n    res=None\n    for u in users:\n        if 'id' in u and u['id']==uid:\n            res=u\n    return res\n",
+    "expected_args": "[list[dict], int]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "dp-strategy-1",
+    "id": 12,
     "name": "Payment Processor (Strategy)",
     "description": "Select payment method at runtime (Card/PayPal) without scattered conditionals.",
     "topic": "Strategy Pattern",
-    "correct_code": "from abc import ABC, abstractmethod\n\nclass PaymentStrategy(ABC):\n    @abstractmethod\n    def pay(self, amount: float) -> str: ...\n\nclass CardPayment(PaymentStrategy):\n    def pay(self, amount: float) -> str:\n        return f\"Paid ${amount:.2f} with Card\"\n\nclass PayPalPayment(PaymentStrategy):\n    def pay(self, amount: float) -> str:\n        return f\"Paid ${amount:.2f} with PayPal\"\n\nclass Checkout:\n    def __init__(self, strategy: PaymentStrategy):\n        self._strategy = strategy\n    def set_strategy(self, strategy: PaymentStrategy):\n        self._strategy = strategy\n    def process(self, amount: float) -> str:\n        return self._strategy.pay(amount)\n",
-    "messed_code": "def pay(kind, amt):\n    if kind==\"card\":\n        return \"Paid $\"+str(round(amt,2))+\" with Card\"\n    elif kind==\"paypal\":\n        return \"Paid $\"+str(round(amt,2))+\" with PayPal\"\n    else:\n        return \"Unknown\"\n"
+    "correct_code": "from abc import ABC, abstractmethod\n\nclass PaymentStrategy(ABC):\n    @abstractmethod\n    def pay(self, amount: float) -> str: ...\n\nclass CardPayment(PaymentStrategy):\n    def pay(self, amount: float) -> str:\n        return f\"Paid ${amount:.2f} with Card\"\n\nclass PayPalPayment(PaymentStrategy):\n    def pay(self, amount: float) -> str:\n        return f\"Paid ${amount:.2f} with PayPal\"\n\nclass Checkout:\n    def __init__(self, strategy: PaymentStrategy):\n        self._strategy = strategy\n    def set_strategy(self, strategy: PaymentStrategy):\n        self._strategy = strategy\n    def process(self, amount: float) -> str:\n        return self._strategy.pay(amount)\n\ndef main():\n    checkout = Checkout(CardPayment())\n    print(checkout.process(100.0))\n",
+    "messed_code": "def pay(kind, amt):\n    if kind==\"card\":\n        return \"Paid $\"+str(round(amt,2))+\" with Card\"\n    elif kind==\"paypal\":\n        return \"Paid $\"+str(round(amt,2))+\" with PayPal\"\n    else:\n        return \"Unknown\"\n",
+    "expected_args": "[str, float]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "dp-strategy-2",
+    "id": 13,
     "name": "Discount Engine (Strategy)",
     "description": "Swap discount algorithms (None, Percentage, Threshold) via Strategy.",
     "topic": "Strategy Pattern",
-    "correct_code": "from abc import ABC, abstractmethod\n\nclass DiscountStrategy(ABC):\n    @abstractmethod\n    def apply(self, subtotal: float) -> float: ...\n\nclass NoDiscount(DiscountStrategy):\n    def apply(self, subtotal: float) -> float:\n        return subtotal\n\nclass PercentageDiscount(DiscountStrategy):\n    def __init__(self, pct: float):\n        self.pct = pct\n    def apply(self, subtotal: float) -> float:\n        return subtotal * (1 - self.pct)\n\nclass ThresholdDiscount(DiscountStrategy):\n    def __init__(self, threshold: float, off: float):\n        self.threshold = threshold\n        self.off = off\n    def apply(self, subtotal: float) -> float:\n        return subtotal - self.off if subtotal >= self.threshold else subtotal\n",
-    "messed_code": "def total(subtotal, mode, pct=0.0, thr=0.0, off=0.0):\n    if mode==\"none\":\n        return round(subtotal,2)\n    if mode==\"pct\":\n        return round(subtotal*(1-pct),2)\n    if mode==\"thr\":\n        return round(subtotal-off if subtotal>=thr else subtotal,2)\n    return round(subtotal,2)\n"
+    "correct_code": "from abc import ABC, abstractmethod\n\nclass DiscountStrategy(ABC):\n    @abstractmethod\n    def apply(self, subtotal: float) -> float: ...\n\nclass NoDiscount(DiscountStrategy):\n    def apply(self, subtotal: float) -> float:\n        return subtotal\n\nclass PercentageDiscount(DiscountStrategy):\n    def __init__(self, pct: float):\n        self.pct = pct\n    def apply(self, subtotal: float) -> float:\n        return subtotal * (1 - self.pct)\n\nclass ThresholdDiscount(DiscountStrategy):\n    def __init__(self, threshold: float, off: float):\n        self.threshold = threshold\n        self.off = off\n    def apply(self, subtotal: float) -> float:\n        return subtotal - self.off if subtotal >= self.threshold else subtotal\n\ndef main():\n    strategy = PercentageDiscount(0.1)\n    print(strategy.apply(100.0))\n",
+    "messed_code": "def total(subtotal, mode, pct=0.0, thr=0.0, off=0.0):\n    if mode==\"none\":\n        return round(subtotal,2)\n    if mode==\"pct\":\n        return round(subtotal*(1-pct),2)\n    if mode==\"thr\":\n        return round(subtotal-off if subtotal>=thr else subtotal,2)\n    return round(subtotal,2)\n",
+    "expected_args": "[float, str, float, float, float]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "dp-factory-1",
+    "id": 14,
     "name": "Logger Factory",
     "description": "Create ConsoleLogger/FileLogger via factory to avoid client conditionals.",
     "topic": "Factory Method",
-    "correct_code": "from abc import ABC, abstractmethod\n\nclass Logger(ABC):\n    @abstractmethod\n    def log(self, msg: str) -> None: ...\n\nclass ConsoleLogger(Logger):\n    def log(self, msg: str) -> None:\n        print(msg)\n\nclass FileLogger(Logger):\n    def __init__(self, path: str = \"app.log\"):\n        self.path = path\n    def log(self, msg: str) -> None:\n        with open(self.path, \"a\", encoding=\"utf-8\") as f:\n            f.write(msg + \"\\n\")\n\nclass LoggerFactory:\n    @staticmethod\n    def create(kind: str) -> Logger:\n        if kind == \"console\":\n            return ConsoleLogger()\n        if kind == \"file\":\n            return FileLogger()\n        raise ValueError(\"Unknown logger kind\")\n",
-    "messed_code": "def make_logger(kind):\n    if kind==\"console\":\n        return lambda msg: print(msg)\n    elif kind==\"file\":\n        def log(msg):\n            f=open(\"app.log\",\"a\")\n            f.write(msg+\"\\n\")\n            f.close()\n        return log\n    else:\n        return None\n"
+    "correct_code": "from abc import ABC, abstractmethod\n\nclass Logger(ABC):\n    @abstractmethod\n    def log(self, msg: str) -> None: ...\n\nclass ConsoleLogger(Logger):\n    def log(self, msg: str) -> None:\n        print(msg)\n\nclass FileLogger(Logger):\n    def __init__(self, path: str = \"app.log\"):\n        self.path = path\n    def log(self, msg: str) -> None:\n        with open(self.path, \"a\", encoding=\"utf-8\") as f:\n            f.write(msg + \"\\n\")\n\nclass LoggerFactory:\n    @staticmethod\n    def create(kind: str) -> Logger:\n        if kind == \"console\":\n            return ConsoleLogger()\n        if kind == \"file\":\n            return FileLogger()\n        raise ValueError(\"Unknown logger kind\")\n\ndef main():\n    logger = LoggerFactory.create(\"console\")\n    logger.log(\"Test message\")\n",
+    "messed_code": "def make_logger(kind):\n    if kind==\"console\":\n        return lambda msg: print(msg)\n    elif kind==\"file\":\n        def log(msg):\n            f=open(\"app.log\",\"a\")\n            f.write(msg+\"\\n\")\n            f.close()\n        return log\n    else:\n        return None\n",
+    "expected_args": "[str]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "dp-factory-2",
+    "id": 15,
     "name": "Shape Factory",
     "description": "Create Circle/Rectangle via factory; each exposes area().",
     "topic": "Factory Method",
-    "correct_code": "from abc import ABC, abstractmethod\nimport math\n\nclass Shape(ABC):\n    @abstractmethod\n    def area(self) -> float: ...\n\nclass Circle(Shape):\n    def __init__(self, r: float):\n        self.r = r\n    def area(self) -> float:\n        return math.pi * self.r * self.r\n\nclass Rectangle(Shape):\n    def __init__(self, w: float, h: float):\n        self.w, self.h = w, h\n    def area(self) -> float:\n        return self.w * self.h\n\nclass ShapeFactory:\n    @staticmethod\n    def create(kind: str, **kwargs) -> Shape:\n        if kind == \"circle\":\n            return Circle(kwargs[\"r\"])\n        if kind == \"rectangle\":\n            return Rectangle(kwargs[\"w\"], kwargs[\"h\"])\n        raise ValueError(\"Unknown shape kind\")\n",
-    "messed_code": "import math\n\ndef area(kind, **k):\n    if kind==\"circle\":\n        return math.pi*(k['r']*k['r'])\n    elif kind==\"rectangle\":\n        return k['w']*k['h']\n    else:\n        return 0\n"
+    "correct_code": "from abc import ABC, abstractmethod\nimport math\n\nclass Shape(ABC):\n    @abstractmethod\n    def area(self) -> float: ...\n\nclass Circle(Shape):\n    def __init__(self, r: float):\n        self.r = r\n    def area(self) -> float:\n        return math.pi * self.r * self.r\n\nclass Rectangle(Shape):\n    def __init__(self, w: float, h: float):\n        self.w, self.h = w, h\n    def area(self) -> float:\n        return self.w * self.h\n\nclass ShapeFactory:\n    @staticmethod\n    def create(kind: str, **kwargs) -> Shape:\n        if kind == \"circle\":\n            return Circle(kwargs[\"r\"])\n        if kind == \"rectangle\":\n            return Rectangle(kwargs[\"w\"], kwargs[\"h\"])\n        raise ValueError(\"Unknown shape kind\")\n\ndef main():\n    shape = ShapeFactory.create(\"circle\", r=5.0)\n    print(shape.area())\n",
+    "messed_code": "import math\n\ndef area(kind, **k):\n    if kind==\"circle\":\n        return math.pi*(k['r']*k['r'])\n    elif kind==\"rectangle\":\n        return k['w']*k['h']\n    else:\n        return 0\n",
+    "expected_args": "[str, dict]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "dp-adapter-1",
+    "id": 16,
     "name": "Temperature Adapter",
     "description": "Adapt a Fahrenheit-only sensor to a Celsius interface.",
     "topic": "Adapter Pattern",
-    "correct_code": "class FahrenheitSensor:\n    def read_f(self) -> float:\n        return 77.0\n\nclass CelsiusReader:\n    def read_c(self) -> float: ...\n\nclass FahrenheitToCelsiusAdapter(CelsiusReader):\n    def __init__(self, sensor: FahrenheitSensor):\n        self.sensor = sensor\n    def read_c(self) -> float:\n        f = self.sensor.read_f()\n        return (f - 32) * 5.0/9.0\n",
-    "messed_code": "class FahrenheitSensor:\n    def read(self):\n        return 77\n\nclass CelsiusReader:\n    def read(self):\n        s=FahrenheitSensor()\n        f=s.read()\n        return (f-32)*5/9\n"
+    "correct_code": "class FahrenheitSensor:\n    def read_f(self) -> float:\n        return 77.0\n\nclass CelsiusReader:\n    def read_c(self) -> float: ...\n\nclass FahrenheitToCelsiusAdapter(CelsiusReader):\n    def __init__(self, sensor: FahrenheitSensor):\n        self.sensor = sensor\n    def read_c(self) -> float:\n        f = self.sensor.read_f()\n        return (f - 32) * 5.0/9.0\n\ndef main():\n    sensor = FahrenheitSensor()\n    adapter = FahrenheitToCelsiusAdapter(sensor)\n    print(adapter.read_c())\n",
+    "messed_code": "class FahrenheitSensor:\n    def read(self):\n        return 77\n\nclass CelsiusReader:\n    def read(self):\n        s=FahrenheitSensor()\n        f=s.read()\n        return (f-32)*5/9\n",
+    "expected_args": "[]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "dp-adapter-2",
+    "id": 17,
     "name": "Logger Interface Adapter",
     "description": "Wrap a third-party logger that expects write(msg) into a log(msg) interface.",
     "topic": "Adapter Pattern",
-    "correct_code": "class ThirdPartyWriter:\n    def write(self, msg: str) -> None:\n        print(msg)\n\nclass Logger:\n    def log(self, msg: str) -> None: ...\n\nclass WriterLoggerAdapter(Logger):\n    def __init__(self, writer: ThirdPartyWriter):\n        self.writer = writer\n    def log(self, msg: str) -> None:\n        self.writer.write(msg)\n",
-    "messed_code": "class ThirdPartyWriter:\n    def write(self,msg):\n        print(msg)\n\nclass Logger:\n    def log(self,msg):\n        print(msg)\n"
+    "correct_code": "class ThirdPartyWriter:\n    def write(self, msg: str) -> None:\n        print(msg)\n\nclass Logger:\n    def log(self, msg: str) -> None: ...\n\nclass WriterLoggerAdapter(Logger):\n    def __init__(self, writer: ThirdPartyWriter):\n        self.writer = writer\n    def log(self, msg: str) -> None:\n        self.writer.write(msg)\n\ndef main():\n    writer = ThirdPartyWriter()\n    logger = WriterLoggerAdapter(writer)\n    logger.log(\"Test message\")\n",
+    "messed_code": "class ThirdPartyWriter:\n    def write(self,msg):\n        print(msg)\n\nclass Logger:\n    def log(self,msg):\n        print(msg)\n",
+    "expected_args": "[]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "dp-observer-1",
+    "id": 18,
     "name": "Stock Ticker Observer",
     "description": "Notify observers when a stock price updates.",
     "topic": "Observer Pattern",
     "correct_code": "from typing import Protocol, List\n\nclass Observer(Protocol):\n    def update(self, symbol: str, price: float) -> None: ...\n\nclass StockTicker:\n    def __init__(self):\n        self._observers: List[Observer] = []\n    def subscribe(self, obs: Observer) -> None:\n        self._observers.append(obs)\n    def unsubscribe(self, obs: Observer) -> None:\n        self._observers.remove(obs)\n    def set_price(self, symbol: str, price: float) -> None:\n        for o in list(self._observers):\n            o.update(symbol, price)\n",
-    "messed_code": "class StockTicker:\n    def __init__(self):\n        self.obs=[]\n    def sub(self,o):\n        self.obs.append(o)\n    def price(self,sym,pr):\n        for o in self.obs:\n            o.update(sym,pr)\n"
+    "messed_code": "class StockTicker:\n    def __init__(self):\n        self.obs=[]\n    def sub(self,o):\n        self.obs.append(o)\n    def price(self,sym,pr):\n        for o in self.obs:\n            o.update(sym,pr)\n",
+    "expected_args": "[]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "dp-observer-2",
+    "id": 19,
     "name": "Chat Room Notifications",
     "description": "Observers get a callback when a new message is posted.",
     "topic": "Observer Pattern",
     "correct_code": "from typing import Protocol, List\n\nclass Listener(Protocol):\n    def on_message(self, text: str) -> None: ...\n\nclass ChatRoom:\n    def __init__(self):\n        self._listeners: List[Listener] = []\n    def join(self, l: Listener) -> None:\n        self._listeners.append(l)\n    def leave(self, l: Listener) -> None:\n        self._listeners.remove(l)\n    def post(self, text: str) -> None:\n        for l in list(self._listeners):\n            l.on_message(text)\n",
-    "messed_code": "class ChatRoom:\n    def __init__(self):\n        self.l=[]\n    def join(self,x):\n        self.l.append(x)\n    def post(self,t):\n        for i in self.l:\n            i.on_message(t)\n"
+    "messed_code": "class ChatRoom:\n    def __init__(self):\n        self.l=[]\n    def join(self,x):\n        self.l.append(x)\n    def post(self,t):\n        for i in self.l:\n            i.on_message(t)\n",
+    "expected_args": "[]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "dp-decorator-1",
+    "id": 20,
     "name": "Timing Decorator",
     "description": "Decorate a function to measure and print execution time.",
     "topic": "Decorator Pattern",
-    "correct_code": "import time\nfrom typing import Callable\n\ndef timed(fn: Callable) -> Callable:\n    def wrapper(*args, **kwargs):\n        start = time.time()\n        try:\n            return fn(*args, **kwargs)\n        finally:\n            elapsed = (time.time() - start) * 1000\n            print(f\"{fn.__name__} took {elapsed:.2f} ms\")\n    return wrapper\n",
-    "messed_code": "import time\n\ndef timed(fn):\n    def w(*a,**k):\n        s=time.time()\n        r=fn(*a,**k)\n        print(fn.__name__,\"took\",(time.time()-s)*1000,\"ms\")\n        return r\n    return w\n"
+    "correct_code": "import time\nfrom typing import Callable\n\ndef timed(fn: Callable) -> Callable:\n    def wrapper(*args, **kwargs):\n        start = time.time()\n        try:\n            return fn(*args, **kwargs)\n        finally:\n            elapsed = (time.time() - start) * 1000\n            print(f\"{fn.__name__} took {elapsed:.2f} ms\")\n    return wrapper\n\ndef example():\n    print(\"Running example\")\n\ndef main():\n    timed_example = timed(example)\n    timed_example()\n",
+    "messed_code": "import time\n\ndef timed(fn):\n    def w(*a,**k):\n        s=time.time()\n        r=fn(*a,**k)\n        print(fn.__name__,\"took\",(time.time()-s)*1000,\"ms\")\n        return r\n    return w\n\ndef example():\n    print(\"Running example\")\n\ndef main():\n    timed_example = timed(example)\n    timed_example()\n",
+    "expected_args": "[]",
+    "expected_inputs": "[]"
   },
   {
-    "id": "dp-decorator-2",
+    "id": 21,
     "name": "Auth Decorator",
     "description": "Add an authorization check before running a handler.",
     "topic": "Decorator Pattern",
-    "correct_code": "from typing import Callable\n\ndef require_role(role: str):\n    def decorator(fn: Callable) -> Callable:\n        def wrapper(user, *args, **kwargs):\n            if getattr(user, \"role\", None) != role:\n                raise PermissionError(\"forbidden\")\n            return fn(user, *args, **kwargs)\n        return wrapper\n    return decorator\n",
-    "messed_code": "def require_role(role):\n    def d(fn):\n        def w(u,*a,**k):\n            if not hasattr(u,'role') or u.role!=role:\n                return None\n            return fn(u,*a,**k)\n        return w\n    return d\n"
+    "correct_code": "from typing import Callable\n\ndef require_role(role: str):\n    def decorator(fn: Callable) -> Callable:\n        def wrapper(user, *args, **kwargs):\n            if getattr(user, \"role\", None) != role:\n                raise PermissionError(\"forbidden\")\n            return fn(user, *args, **kwargs)\n        return wrapper\n    return decorator\n\nclass User:\n    def __init__(self, role):\n        self.role = role\n\ndef example(user):\n    print(f\"Access granted for {user.role}\")\n\ndef main():\n    user = User(\"admin\")\n    auth_example = require_role(\"admin\")(example)\n    auth_example(user)\n",
+    "messed_code": "def require_role(role):\n    def d(fn):\n        def w(u,*a,**k):\n            if not hasattr(u,'role') or u.role!=role:\n                return None\n            return fn(u,*a,**k)\n        return w\n    return d\n\nclass User:\n    def __init__(self, role):\n        self.role = role\n\ndef example(u):\n    print(f\"Access granted for {u.role}\")\n\ndef main():\n    user = User(\"admin\")\n    auth_example = require_role(\"admin\")(example)\n    auth_example(user)\n",
+    "expected_args": "[]",
+    "expected_inputs": "[]"
   }
 ]

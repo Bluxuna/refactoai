@@ -83,7 +83,6 @@ class TaskBase(BaseModel):
     name: str = Field(..., max_length=50)
     description: str
     topic: str = Field(..., max_length=50)
-    type: bool = True  # True=train, False=refactor
     correct_code: str
     messed_code: str
 

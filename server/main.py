@@ -1,15 +1,17 @@
-from typing import Union
-
 from fastapi import FastAPI
+from database.db import engine
+from database.db_models import Base
+from backend.routers.tasks import router as tasks_router
 
-app = FastAPI()
+app = FastAPI(title="RefactoAI Backend")
 
+# Create tables if not exist
+Base.metadata.create_all(bind=engine)
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+# Include task router
+app.include_router(tasks_router, tags=["Tasks"])
 
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+# Root route
+@app.get("/", summary="Root endpoint")
+def root():
+    return {"message": "Welcome to RefactoAI!", "available_routes": ["/topics", "/topics/{topic}", "/topics/{topic}/task={id}"]}

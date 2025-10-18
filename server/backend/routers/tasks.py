@@ -70,21 +70,17 @@ def to_task_full(task: Task) -> TaskResponse:
 # /topics  → list all unique topics
 @router.get("/topics", summary="List all available topics")
 def list_topics(db: Session = Depends(get_db)):
-    rows = db.execute(select(func.distinct(Task.topic))).all()
-    return {"topics": [r[0] for r in rows]}
+    # Fetch all Task rows
+    rows = db.execute(select(Task)).scalars().all()
 
-
-# /topics/{topic}  → all tasks in a topic
-@router.get("/topics/{topic}", summary="List tasks under a topic")
-def tasks_in_topic(topic: str, db: Session = Depends(get_db)):
-    items = db.scalars(select(Task).where(Task.topic == topic)).all()
-    return {"items": [to_task_simple(t) for t in items], "total": len(items)}
+    # Return only id, name, and topic
+    return {"topics": [{"id": task.id, "name": task.name, "topic": task.topic} for task in rows]}
 
 
 # /topics/{topic}/task={id}  → single task by topic and ID
-@router.get("/topics/{topic}/task={task_id}", response_model=TaskSimpleResponse, summary="Get single task")
-def task_by_topic_and_id(topic: str, task_id: int, db: Session = Depends(get_db)):
-    t = db.scalars(select(Task).where(Task.id == task_id, Task.topic == topic)).first()
+@router.get("/topics/task/{task_id}", response_model=TaskSimpleResponse, summary="Get single task")
+def task_by_topic_and_id(task_id: int, db: Session = Depends(get_db)):
+    t = db.scalars(select(Task).where(Task.id == task_id)).first()
     if not t:
         raise HTTPException(404, "Task not found")
     return to_task_simple(t)

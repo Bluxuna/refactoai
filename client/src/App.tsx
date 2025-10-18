@@ -22,7 +22,6 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/roadmaps" element={<Roadmaps />} />
             <Route path="/challenge/:id" element={<RefactorChallenge />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

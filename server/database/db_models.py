@@ -28,7 +28,6 @@ class Task(Base):
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     topic: Mapped[str] = mapped_column(String(50), nullable=False)
-    type: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)  # True=train, False=refactor
     correct_code: Mapped[str] = mapped_column(Text, nullable=False)
     messed_code: Mapped[str] = mapped_column(Text, nullable=False)
 

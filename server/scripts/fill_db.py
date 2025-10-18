@@ -48,7 +48,7 @@ def add_data_to_db(table: str):
     print("Establishing database connection")
     try:
         path = os.getenv('DATABASE_PATH')
-        conn = sqlite3.connect('/home/blux/PycharmProjects/refactoai/server/scripts/tasks.db')
+        conn = sqlite3.connect(path)
         cursor = conn.cursor()
 
         print("Getting JSON data")

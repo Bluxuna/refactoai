@@ -1,19 +1,24 @@
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Sparkles } from "lucide-react";
 import { Card } from "./ui/card";
+import Loader from "./Loader";
 
-const AiSuggestions = () => {
-  const suggestions = [
-    { header: "this is header", hints: ["ewdewd", "wefwedwed", "wedewd"] },
-  ];
-
+const AiSuggestions = ({
+  data,
+  isLoading,
+}: {
+  data: { answer: string; hints: string[] };
+  isLoading: boolean;
+}) => {
   return (
-    <TabsContent value="suggestions" className="p-6 m-0">
-      {suggestions.length > 0 ? (
+    <TabsContent value="ai_suggestions" className="p-6 m-0">
+      {isLoading ? (
+        <Loader />
+      ) : data ? (
         <div>
-          <h1 className="text-md">{suggestions[0].header}</h1>
+          <h1 className="text-md">{data.answer}</h1>
           <div className="space-y-3">
-            {suggestions[0].hints.map((suggestion, idx) => (
+            {data.hints.map((suggestion, idx) => (
               <Card key={idx} className="p-4 border-l-4 border-l-primary">
                 <div className="flex items-start gap-3">
                   <Sparkles className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />

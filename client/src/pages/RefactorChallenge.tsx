@@ -9,15 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import {
-  PlayCircle,
-  Sparkles,
-  Send,
-  CheckCircle2,
-  List,
-  Loader,
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { PlayCircle, Sparkles, Send, CheckCircle2, List } from "lucide-react";
+import Loader from "@/components/Loader";
 import { useTheme } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "react-router-dom";
@@ -26,32 +19,39 @@ import ProblemList from "@/components/ProblemList";
 import AiSuggestions from "@/components/AiSuggestions";
 import CodeRun from "@/components/CodeRun";
 import { useQuery } from "@tanstack/react-query";
+import ManualCheck from "@/components/ManualCheck";
 
 const RefactorChallenge = () => {
   const [searchParams] = useSearchParams();
   const { id } = useParams<{ id: string }>();
   const mission = searchParams.get("mission");
-  const [code, setCode] = useState<string[]>([]);
-
-  // const {
-  //   data: taskData,
-  //   isLoading: isTaskDataLoading,
-  //   error: isTaskError,
-  // } = useQuery({
-  //   queryKey: ["task"],
-  //   queryFn: async () => {
-  //     return [];
-  //   },
-  // });
+  const [code, setCode] = useState<string[]>(["function create"]);
+  const [codeString, setCodeString] = useState("");
 
   const {
-    data: codeCheckData,
-    isLoading: isCodeCheckLoading,
-    isError: isCodeCheckError,
+    data: taskData,
+    isLoading: isTaskDataLoading,
+    error: isTaskError,
   } = useQuery({
+    queryKey: ["task"],
+    queryFn: async () => {
+      const response = await fetch(
+        import.meta.env.VITE_API_URL + `/tasks/${id}`
+      );
+      const data = await response.json();
+
+      if (mission === "refactor") {
+        setCodeString(data.messed_code);
+      }
+
+      return data;
+    },
+  });
+
+  const { data: codeCheckData, refetch: codeCheckRefetch } = useQuery({
     queryKey: ["code_check"],
     queryFn: async () => {
-      const res = await fetch(
+      const RunResponse = await fetch(
         import.meta.env.VITE_API_URL + `/tasks/${id}/run`,
         {
           method: "POST",
@@ -62,27 +62,68 @@ const RefactorChallenge = () => {
         }
       );
 
-      const data = res.json();
+      const ManualCheckerResponse = await fetch(
+        import.meta.env.VITE_API_URL + `/task/${id}/manual_quality_checker`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ lines: code }),
+        }
+      );
 
-      console.log(data);
-      return [];
+      const RunData = await RunResponse.json();
+      const ManualCheckerData = await ManualCheckerResponse.json();
+      return { RunData: RunData.res, ManualCheckerData: ManualCheckerData.res };
     },
-    enabled: true,
+    enabled: false,
   });
 
-  // const {
-  //   data: AiSuggestionData,
-  //   isLoading: isAiSuggestionLoading,
-  //   isError: isAiSuggestionError,
-  // } = useQuery({
-  //   queryKey: ["ai_suggestion"],
-  //   queryFn: async () => {},
-  // });
+  const {
+    data: AiSuggestionData,
+    isLoading: isAiSuggestionLoading,
+    refetch: AiSuggestionRefetch,
+  } = useQuery({
+    queryKey: ["ai_suggestion"],
+    queryFn: async () => {
+      const response = await fetch(
+        import.meta.env.VITE_API_URL +
+          `/task/${id}/AI_checker?request=${codeString}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: codeString,
+        }
+      );
+      try {
+        const data = await response.json();
+        console.log("Full response:", data);
+        const resData = JSON.parse(data.res);
 
-  // if (isTaskDataLoading) return <Loader />;
-  // if (isTaskError) return <div>Error detected</div>;
+        const arrayOfSuggestions = localStorage.getItem("arrayOfSuggestions");
+        if (arrayOfSuggestions) {
+          const array = JSON.parse(arrayOfSuggestions);
+          array.push(resData);
+          localStorage.setItem("arrayOfSuggestions", JSON.stringify(array));
+        } else {
+          localStorage.setItem("arrayOfSuggestions", JSON.stringify([resData]));
+        }
 
-  const { toast } = useToast();
+        const result = {
+          answer: resData.answer,
+          hints: resData.hints || [],
+        };
+
+        console.log("Extracted result:", result);
+        return result;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    enabled: false,
+  });
+
   const { resolvedTheme } = useTheme();
 
   const [chatMessages, setChatMessages] = useState<
@@ -93,29 +134,23 @@ const RefactorChallenge = () => {
       content: "Hi! I'm here to help you refactor this code. Ask me anything!",
     },
   ]);
+
   const [chatInput, setChatInput] = useState("");
   const [activeTab, setActiveTab] = useState("challenge");
   const [bottomTab, setBottomTab] = useState("output");
   const [showProblemList, setShowProblemList] = useState(false);
 
-  const handleCodeCheck = () => {};
+  const handleCodeCheck = () => {
+    codeCheckRefetch();
+  };
 
   const handleGetSuggestions = () => {
-    setBottomTab("suggestions");
-    toast({
-      title: "AI Suggestions Ready",
-      description: "Check the suggestions panel below",
-    });
+    AiSuggestionRefetch();
   };
 
   const handleSubmit = () => {
     setBottomTab("output");
     // Mock submission
-    const score = Math.floor(Math.random() * 40) + 60;
-    toast({
-      title: "Code Submitted!",
-      description: `Score: ${score}/100`,
-    });
   };
 
   const handleSendMessage = () => {
@@ -137,6 +172,10 @@ const RefactorChallenge = () => {
 
     setChatInput("");
   };
+
+  // Conditional returns after all hooks
+  if (isTaskDataLoading) return <Loader />;
+  if (isTaskError) return <div>Error detected</div>;
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -194,9 +233,11 @@ const RefactorChallenge = () => {
                     <TabsContent value="challenge" className="p-6 m-0 h-full">
                       <div className="space-y-6">
                         <div>
-                          <h2 className="text-2xl font-bold mb-4">Challenge</h2>
+                          <h2 className="text-xl font-bold mb-4">
+                            {taskData.name}
+                          </h2>
                           <p className="text-muted-foreground mb-4">
-                            some description we will get from db
+                            {taskData.description}
                           </p>
                         </div>
 
@@ -225,11 +266,11 @@ const RefactorChallenge = () => {
                 <Editor
                   height="100%"
                   defaultLanguage="python"
-                  value={code[0]}
+                  value={codeString}
                   onChange={(value) => {
                     const codeString = value || "";
                     const codeLines = codeString.split("\n");
-                    console.log("Code lines:", codeLines);
+                    setCodeString(codeString);
                     setCode(codeLines);
                   }}
                   theme={resolvedTheme === "light" ? "light" : "vs-dark"}
@@ -307,12 +348,21 @@ const RefactorChallenge = () => {
           >
             <TabsList className="w-full justify-start rounded-none border-t bg-muted/30">
               <TabsTrigger value="output">Output</TabsTrigger>
-              <TabsTrigger value="suggestions">AI Suggestions</TabsTrigger>
+              {codeCheckData?.ManualCheckerData.length > 0 && (
+                <TabsTrigger value="small_improvements">
+                  Small Improvements
+                </TabsTrigger>
+              )}
+              <TabsTrigger value="ai_suggestions">AI Suggestions</TabsTrigger>
             </TabsList>
 
             <ScrollArea className="flex-1">
-              <CodeRun />
-              <AiSuggestions />
+              <CodeRun data={codeCheckData?.RunData || ""} />
+              <ManualCheck data={codeCheckData?.ManualCheckerData || ""} />
+              <AiSuggestions
+                data={AiSuggestionData}
+                isLoading={isAiSuggestionLoading}
+              />
             </ScrollArea>
           </Tabs>
         </ResizablePanel>

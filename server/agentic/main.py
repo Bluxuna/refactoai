@@ -6,6 +6,7 @@ import os
 import subprocess
 import tempfile
 import sys
+from typing import Dict
 
 load_dotenv()
 
@@ -135,7 +136,9 @@ Your JSON format must strictly adhere to the following schema:
                 "A conceptual and strategic suggestion based on code principles or design patterns.",
                 "A hint addressing a Pylint finding, structure, or naming convention.",
                 "A final piece of guidance focused on Pythonic idioms or overall maintainability."
-            ]
+            ],
+            "score" : from 0 to 100 based on our code check.
+            
         }}
         """
 
@@ -153,6 +156,23 @@ Your JSON format must strictly adhere to the following schema:
         self.conversation_history.append(AIMessage(content=response.content))
 
         return response.content
+
+    def invoke_llm_for_chat(self, data: Dict):
+        prompt = f"""You are an expert programming mentor specializing in clean code principles and design patterns.
+
+        Provided Information: {data}
+
+        Instructions:
+        - Provide clear, actionable advice on clean code and design patterns
+        - Use concrete examples when helpful
+        - Keep responses concise (2-4 sentences for simple questions, more for complex topics)
+        - If the question is unclear, ask for clarification
+        - Focus on practical application over theory
+
+        Respond in a friendly, encouraging tone."""
+
+        response = self.llm.invoke(prompt)
+        return response
 
     def clear_history(self):
         """

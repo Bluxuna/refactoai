@@ -5,7 +5,7 @@ import sys
 
 
 class CodeChecker:
-    """
+    """z
     A class to perform static analysis on Python code strings.
     """
 

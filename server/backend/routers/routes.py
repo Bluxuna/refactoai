@@ -119,7 +119,7 @@ def run_code_by_task_id(task_id: int, request: str):
 
     return {"res": response}
 
-@app.get("/chat")
+@app.post("/chat")
 def chat(messages:dict):
     agent = Assistant_agent()
     response = agent.invoke_llm_for_chat(messages)

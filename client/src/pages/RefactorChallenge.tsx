@@ -25,7 +25,7 @@ const RefactorChallenge = () => {
   const [searchParams] = useSearchParams();
   const { id } = useParams<{ id: string }>();
   const mission = searchParams.get("mission");
-  const [code, setCode] = useState<string[]>(["function create"]);
+  const [code, setCode] = useState<string[]>([""]);
   const [codeString, setCodeString] = useState("");
 
   const {
@@ -42,6 +42,7 @@ const RefactorChallenge = () => {
 
       if (mission === "refactor") {
         setCodeString(data.messed_code);
+        setCode(data.messed_code.split("\n"));
       }
 
       return data;
@@ -96,30 +97,21 @@ const RefactorChallenge = () => {
           body: codeString,
         }
       );
-      try {
-        const data = await response.json();
-        console.log("Full response:", data);
-        const resData = JSON.parse(data.res);
+      const data = await response.json();
+      const resData = JSON.parse(data.res);
+      console.log(resData);
+      // Store in localStorage
+      const existing = JSON.parse(
+        localStorage.getItem("arrayOfSuggestions") || "[]"
+      );
+      existing.push(resData);
+      localStorage.setItem("arrayOfSuggestions", JSON.stringify(existing));
+      localStorage.setItem("score", resData.score);
 
-        const arrayOfSuggestions = localStorage.getItem("arrayOfSuggestions");
-        if (arrayOfSuggestions) {
-          const array = JSON.parse(arrayOfSuggestions);
-          array.push(resData);
-          localStorage.setItem("arrayOfSuggestions", JSON.stringify(array));
-        } else {
-          localStorage.setItem("arrayOfSuggestions", JSON.stringify([resData]));
-        }
-
-        const result = {
-          answer: resData.answer,
-          hints: resData.hints || [],
-        };
-
-        console.log("Extracted result:", result);
-        return result;
-      } catch (err) {
-        console.log(err);
-      }
+      return {
+        answer: resData.answer,
+        hints: resData.hints || [],
+      };
     },
     enabled: false,
   });
@@ -139,6 +131,7 @@ const RefactorChallenge = () => {
   const [activeTab, setActiveTab] = useState("challenge");
   const [bottomTab, setBottomTab] = useState("output");
   const [showProblemList, setShowProblemList] = useState(false);
+  const [showScoreMessage, setShowScoreMessage] = useState(false);
 
   const handleCodeCheck = () => {
     codeCheckRefetch();
@@ -149,27 +142,36 @@ const RefactorChallenge = () => {
   };
 
   const handleSubmit = () => {
-    setBottomTab("output");
-    // Mock submission
+    if (localStorage.getItem("score")) {
+      setShowScoreMessage(true);
+    } else {
+      AiSuggestionRefetch();
+    }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!chatInput.trim()) return;
 
     setChatMessages((prev) => [...prev, { role: "user", content: chatInput }]);
 
-    // Mock AI response
-    setTimeout(() => {
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            "That's a great question! For clean code, focus on making your variable names self-documenting. Instead of 'x' and 'y', use names that describe what the values represent.",
-        },
-      ]);
-    }, 500);
-
+    const res = await fetch(import.meta.env.VITE_API_URL + "/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        role: "user",
+        input: chatInput,
+        llm_history: JSON.parse(
+          localStorage.getItem("arrayOfSuggestions") || "[]"
+        ),
+      }),
+    });
+    const data = await res.json();
+    setChatMessages((prev) => [
+      ...prev,
+      { role: "assistant", content: data.content },
+    ]);
     setChatInput("");
   };
 
@@ -240,17 +242,6 @@ const RefactorChallenge = () => {
                             {taskData.description}
                           </p>
                         </div>
-
-                        {/* <div>
-                          <h3 className="font-semibold mb-3">Hints</h3>
-                          <div className="space-y-2">
-                            {challenge.hints.map((hint, idx) => (
-                              <Card key={idx} className="p-3 bg-muted/50">
-                                <p className="text-sm">💡 {hint}</p>
-                              </Card>
-                            ))}
-                          </div>
-                        </div> */}
                       </div>
                     </TabsContent>
                   </ScrollArea>

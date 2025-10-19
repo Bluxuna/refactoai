@@ -5,10 +5,11 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
 
-project_root = Path(__file__).parent.parent.parent
+# Add parent directory to path for imports
+project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from server.database.db_models import Base  # make sure you import Base here
+from database.db_models import Base  # make sure you import Base here
 
 def create_db(engine):
     Base.metadata.create_all(bind=engine)

@@ -2,7 +2,7 @@
   {
     "id": 1,
     "name": "Cart Total with Tax & Discount",
-    "description": "Compute final total for (price, qty) items with discount then tax; return rounded total.",
+    "description": "This function calculates the final total for a shopping cart. It takes a list of items, where each item is a tuple of its price and quantity. First, it computes the subtotal by summing the price-quantity products. Then, it applies a percentage-based discount to this subtotal. Finally, a fixed tax rate is applied to the discounted price to arrive at the final total, which is then rounded to two decimal places for currency representation.",
     "topic": "Naming & Intent",
     "correct_code": "from typing import List, Tuple\n\nTAX_RATE = 0.18\n\ndef calculate_final_total(items: List[Tuple[float, int]], discount_pct: float) -> float:\n    \"\"\"Return final total with discount then tax applied, rounded to 2 decimals.\"\"\"\n    if not 0 <= discount_pct <= 1:\n        raise ValueError(\"discount_pct must be between 0 and 1\")\n    subtotal = sum(price * qty for price, qty in items)\n    discounted = subtotal * (1 - discount_pct)\n    taxed = discounted * (1 + TAX_RATE)\n    return round(taxed, 2)\n\ndef main():\n    items = [(10.0, 2), (5.0, 3)]\n    discount_pct = float(input(\"Enter discount percentage (0-1): \"))\n    print(calculate_final_total(items, discount_pct))\n",
     "messed_code": "def a(b):\n    c=float(input('discount: '))\n    d=0\n    for e in b:\n        d+=e[0]*e[1]\n    d=d-(d*c)\n    d=d+(d*0.18)\n    return round(d,2)\n\ndef main():\n    items = [(10.0, 2), (5.0, 3)]\n    print(a(items))\n",
@@ -12,7 +12,7 @@
   {
     "id": 2,
     "name": "User Input Discount",
-    "description": "Compute cart total with user-provided discount percentage via input().",
+    "description": "This function calculates the final total for a shopping cart, incorporating a discount percentage that is actively solicited from the user via the command line `input()` function. The function first calculates the subtotal from a list of (price, quantity) tuples. It then prompts the user for a discount, applies it, and subsequently adds tax. The final result is rounded to two decimal places. This example highlights handling user input directly within a calculation function.",
     "topic": "User Input Handling",
     "correct_code": "from typing import List, Tuple\n\nTAX_RATE = 0.18\n\ndef calculate_final_total(items: List[Tuple[float, int]]) -> float:\n    \"\"\"Return final total with user-provided discount then tax, rounded to 2 decimals.\"\"\"\n    discount_pct = float(input(\"Enter discount percentage (0-1): \"))\n    if not 0 <= discount_pct <= 1:\n        raise ValueError(\"discount_pct must be between 0 and 1\")\n    subtotal = sum(price * qty for price, qty in items)\n    discounted = subtotal * (1 - discount_pct)\n    taxed = discounted * (1 + TAX_RATE)\n    return round(taxed, 2)\n\ndef main():\n    items = [(10.0, 2), (5.0, 3)]\n    print(calculate_final_total(items))\n",
     "messed_code": "def a(b):\n    c=float(input('discount: '))\n    d=0\n    for e in b:\n        d+=e[0]*e[1]\n    d=d-(d*c)\n    d=d+(d*0.18)\n    return round(d,2)\n\ndef main():\n    items = [(10.0, 2), (5.0, 3)]\n    print(a(items))\n",
@@ -22,7 +22,7 @@
   {
     "id": 3,
     "name": "Average Session Duration",
-    "description": "Given seconds list, return average positive duration in minutes (1 decimal).",
+    "description": "Given a list of session durations in seconds, this function calculates the average duration in minutes. It first filters the list to include only positive, valid durations, discarding any zero or negative values. If no valid durations exist, it should return 0.0. For the valid durations, it computes their average in seconds, converts this average to minutes by dividing by 60, and finally rounds the result to one decimal place for a clean presentation.",
     "topic": "Naming & Intent",
     "correct_code": "from typing import List\n\ndef average_session_minutes(durations_sec: List[int]) -> float:\n    \"\"\"Return average positive duration in minutes, rounded to 1 decimal.\"\"\"\n    valid = [d for d in durations_sec if d > 0]\n    if not valid:\n        return 0.0\n    avg_seconds = sum(valid) / len(valid)\n    return round(avg_seconds / 60, 1)\n",
     "messed_code": "def f(x):\n    s=0\n    n=0\n    for i in x:\n        if i>0:\n            s+=i\n            n+=1\n    if n==0:\n        return 0\n    return round((s/n)/60,1)\n",
@@ -32,7 +32,7 @@
   {
     "id": 4,
     "name": "Shipping Cost Calculator",
-    "description": "Compute shipping: base + weight*per_kg; premium users get 20% off. Avoid duplication.",
+    "description": "This function calculates the shipping cost based on the weight of a package and the user's membership status. The total cost is determined by a fixed base fee plus a variable amount that depends on the weight (cost per kg). A key feature is that premium users receive a 20% discount on the total calculated shipping cost. The implementation should demonstrate the DRY (Don't Repeat Yourself) principle by avoiding redundant calculation logic for regular and premium users, instead applying the discount conditionally.",
     "topic": "DRY (Don't Repeat Yourself)",
     "correct_code": "BASE_FEE = 5.0\nPER_KG = 1.2\nPREMIUM_DISCOUNT = 0.2\n\ndef shipping_cost(weight_kg: float, is_premium: bool) -> float:\n    if weight_kg < 0:\n        raise ValueError(\"weight_kg must be non-negative\")\n    cost = BASE_FEE + (weight_kg * PER_KG)\n    if is_premium:\n        cost *= (1 - PREMIUM_DISCOUNT)\n    return round(cost, 2)\n",
     "messed_code": "def cost_regular(w):\n    if w<0:\n        raise Exception('bad')\n    c=5+(w*1.2)\n    return round(c,2)\n\ndef cost_premium(w):\n    if w<0:\n        raise Exception('bad')\n    c=5+(w*1.2)\n    c=c-(c*0.2)\n    return round(c,2)\n",
@@ -42,7 +42,7 @@
   {
     "id": 5,
     "name": "Price Formatter",
-    "description": "Format prices uniformly as $<amount> with 2 decimals using a single helper.",
+    "description": "This example focuses on formatting numerical price values into a consistent, user-friendly string format, such as '$123.45'. The core task is to create a single, reusable helper function that takes a float and returns a string prefixed with a dollar sign and formatted to exactly two decimal places. This promotes the DRY (Don't Repeat Yourself) principle by ensuring that all price formatting throughout the application is handled by one central utility, preventing code duplication and inconsistencies.",
     "topic": "DRY (Don't Repeat Yourself)",
     "correct_code": "def format_price(amount: float) -> str:\n    return f\"${amount:.2f}\"\n\ndef cart_total_str(total: float) -> str:\n    return format_price(total)\n\ndef item_price_str(price: float) -> str:\n    return format_price(price)\n",
     "messed_code": "def cart_total_str(t):\n    return \"$\"+str(round(t,2))\n\ndef item_price_str(p):\n    return \"$\"+str(round(p,2))\n",
@@ -52,7 +52,7 @@
   {
     "id": 6,
     "name": "Email Validator",
-    "description": "Check email validity using small single-purpose helpers.",
+    "description": "This function validates whether a given string is a well-formed email address. The key principle demonstrated here is breaking down a complex problem into smaller, manageable, single-purpose helper functions. Instead of one monolithic validation function, this solution uses separate helpers to check for specific criteria: the presence of exactly one '@' symbol, ensuring the local and domain parts are non-empty, and verifying that the domain contains at least one dot and does not start or end with one. This approach improves readability, testability, and maintainability.",
     "topic": "Small Functions & Single Responsibility",
     "correct_code": "def has_single_at(email: str) -> bool:\n    return email.count(\"@\") == 1\n\ndef parts_non_empty(email: str) -> bool:\n    local, domain = email.split(\"@\")\n    return bool(local and domain)\n\ndef domain_has_dot(email: str) -> bool:\n    domain = email.split(\"@\")[1]\n    return \".\" in domain and not domain.startswith('.') and not domain.endswith('.')\n\ndef is_valid_email(email: str) -> bool:\n    return has_single_at(email) and parts_non_empty(email) and domain_has_dot(email)\n",
     "messed_code": "def ok(e):\n    if e.count('@')!=1:\n        return False\n    x=e.split('@')\n    if len(x[0])==0 or len(x[1])==0:\n        return False\n    if '.' not in x[1] or x[1].startswith('.') or x[1].endswith('.'):\n        return False\n    return True\n",
@@ -62,7 +62,7 @@
   {
     "id": 7,
     "name": "Normalize Names",
-    "description": "Convert '  first  LAST  ' → 'First Last' via focused helpers.",
+    "description": "This function normalizes a person's name from a raw string format, which may contain excess whitespace and inconsistent capitalization (e.g., '  first  LAST  '), into a clean, standardized format ('First Last'). The process is broken down into distinct steps using small, single-responsibility helper functions. One helper handles trimming leading/trailing whitespace and collapsing internal spaces, while another handles the capitalization logic for each part of the name. This demonstrates how to build a clean data transformation pipeline from simple, reusable components.",
     "topic": "Small Functions & Single Responsibility",
     "correct_code": "def _trim_spaces(s: str) -> str:\n    return \" \".join(s.strip().split())\n\ndef _capitalise(parts):\n    return [p.capitalize() for p in parts]\n\ndef normalize_name(raw: str) -> str:\n    compact = _trim_spaces(raw)\n    return \" \".join(_capitalise(compact.split(\" \")))\n",
     "messed_code": "def n(s):\n    s=s.strip()\n    s=\" \".join(s.split())\n    z=[]\n    for x in s.split(\" \"):\n        z.append(x[0].upper()+x[1:].lower() if x else x)\n    return \" \".join(z)\n",
@@ -72,7 +72,7 @@
   {
     "id": 8,
     "name": "Circle Area with Pi Constant",
-    "description": "Compute circle area using a named constant instead of a magic number.",
+    "description": "This function calculates the area of a circle given its radius. The primary focus of this example is to illustrate the importance of avoiding 'magic numbers' in code. Instead of embedding the numerical value of Pi (e.g., 3.14) directly into the area calculation formula, it defines a named constant (PI) for this value. Using a constant improves code readability, maintainability, and makes the intent of the number clear, while also making it easy to update the precision of Pi in one central location.",
     "topic": "Magic Numbers & Constants",
     "correct_code": "PI = 3.141592653589793\n\ndef circle_area(radius: float) -> float:\n    if radius < 0:\n        raise ValueError(\"radius must be non-negative\")\n    return PI * radius * radius\n",
     "messed_code": "def circle_area(r):\n    if r<0:\n        raise Exception('no')\n    return 3.14*r*r\n",
@@ -82,7 +82,7 @@
   {
     "id": 9,
     "name": "HTTP Timeout Configuration",
-    "description": "Provide default timeouts via constants instead of repeated literals.",
+    "description": "This function is designed to configure connect and read timeouts for an operation like an HTTP request. It demonstrates the practice of using named constants for default configuration values instead of magic numbers. By defining defaults like `DEFAULT_CONNECT_TIMEOUT` and `DEFAULT_READ_TIMEOUT` at the module level, the code becomes more self-documenting and easier to manage. If the default timeout values need to be changed, they can be updated in a single, clear location rather than being hunted down throughout the codebase.",
     "topic": "Magic Numbers & Constants",
     "correct_code": "DEFAULT_CONNECT_TIMEOUT = 3.0\nDEFAULT_READ_TIMEOUT = 5.0\n\ndef timeouts(custom_connect: float | None = None, custom_read: float | None = None) -> tuple[float, float]:\n    connect = custom_connect if custom_connect is not None else DEFAULT_CONNECT_TIMEOUT\n    read = custom_read if custom_read is not None else DEFAULT_READ_TIMEOUT\n    return (connect, read)\n",
     "messed_code": "def timeouts(cc=None, rr=None):\n    if cc is None:\n        cc=3\n    if rr is None:\n        rr=5\n    return (cc, rr)\n",
@@ -92,7 +92,7 @@
   {
     "id": 10,
     "name": "Safe Division with Guard",
-    "description": "Divide a by b; early return 0.0 for b==0; illustrate guard clause.",
+    "description": "This function demonstrates a safe way to perform division by handling the potential for a division-by-zero error. It showcases the 'guard clause' pattern, where an initial check at the top of the function handles the exceptional case (the divisor being zero) with an early return. This simplifies the structure of the function by avoiding a nested if-else block, making the primary logic—the 'happy path' of performing the division—more prominent and easier to read.",
     "topic": "Guard Clauses & Early Return",
     "correct_code": "def safe_div(a: float, b: float) -> float:\n    if b == 0:\n        return 0.0\n    return a / b\n",
     "messed_code": "def safe_div(a,b):\n    if b!=0:\n        return a/b\n    else:\n        return 0.0\n",
@@ -102,7 +102,7 @@
   {
     "id": 11,
     "name": "Find User by Id",
-    "description": "Return user dict from list by id; use guard for empty/None input.",
+    "description": "This function searches through a list of user dictionaries to find a user matching a specific ID. It effectively demonstrates the use of a guard clause to handle invalid or empty inputs at the beginning of the function. By immediately checking if the provided list of users is empty or None, it prevents potential errors and simplifies the subsequent loop. If no matching user is found after iterating through the list, it returns None.",
     "topic": "Guard Clauses & Early Return",
     "correct_code": "from typing import Optional\n\ndef find_user(users: list[dict], user_id: int) -> Optional[dict]:\n    if not users:\n        return None\n    for u in users:\n        if u.get(\"id\") == user_id:\n            return u\n    return None\n",
     "messed_code": "def find_user(users, uid):\n    if users is None or len(users)==0:\n        return None\n    res=None\n    for u in users:\n        if 'id' in u and u['id']==uid:\n            res=u\n    return res\n",
@@ -112,7 +112,7 @@
   {
     "id": 12,
     "name": "Payment Processor (Strategy)",
-    "description": "Select payment method at runtime (Card/PayPal) without scattered conditionals.",
+    "description": "This example demonstrates the Strategy design pattern to handle different payment processing methods, such as by credit card or PayPal. Instead of using a monolithic function with `if/elif/else` statements to select the payment logic, it defines a common `PaymentStrategy` interface. Concrete classes like `CardPayment` and `PayPalPayment` implement this interface. This approach decouples the client code (the `Checkout` class) from the specific payment algorithms, allowing a payment method to be selected and swapped at runtime without altering the client's code.",
     "topic": "Strategy Pattern",
     "correct_code": "from abc import ABC, abstractmethod\n\nclass PaymentStrategy(ABC):\n    @abstractmethod\n    def pay(self, amount: float) -> str: ...\n\nclass CardPayment(PaymentStrategy):\n    def pay(self, amount: float) -> str:\n        return f\"Paid ${amount:.2f} with Card\"\n\nclass PayPalPayment(PaymentStrategy):\n    def pay(self, amount: float) -> str:\n        return f\"Paid ${amount:.2f} with PayPal\"\n\nclass Checkout:\n    def __init__(self, strategy: PaymentStrategy):\n        self._strategy = strategy\n    def set_strategy(self, strategy: PaymentStrategy):\n        self._strategy = strategy\n    def process(self, amount: float) -> str:\n        return self._strategy.pay(amount)\n\ndef main():\n    checkout = Checkout(CardPayment())\n    print(checkout.process(100.0))\n",
     "messed_code": "def pay(kind, amt):\n    if kind==\"card\":\n        return \"Paid $\"+str(round(amt,2))+\" with Card\"\n    elif kind==\"paypal\":\n        return \"Paid $\"+str(round(amt,2))+\" with PayPal\"\n    else:\n        return \"Unknown\"\n",
@@ -122,7 +122,7 @@
   {
     "id": 13,
     "name": "Discount Engine (Strategy)",
-    "description": "Swap discount algorithms (None, Percentage, Threshold) via Strategy.",
+    "description": "This function applies a discount to a shopping cart's subtotal, showcasing the Strategy pattern for handling various discount calculation rules. It avoids complex conditional logic by defining a `DiscountStrategy` interface with different concrete implementations: `NoDiscount`, `PercentageDiscount`, and `ThresholdDiscount`. This allows the specific discount algorithm to be selected and applied at runtime, making the system flexible and easy to extend with new discount types without modifying the core logic that uses the strategy.",
     "topic": "Strategy Pattern",
     "correct_code": "from abc import ABC, abstractmethod\n\nclass DiscountStrategy(ABC):\n    @abstractmethod\n    def apply(self, subtotal: float) -> float: ...\n\nclass NoDiscount(DiscountStrategy):\n    def apply(self, subtotal: float) -> float:\n        return subtotal\n\nclass PercentageDiscount(DiscountStrategy):\n    def __init__(self, pct: float):\n        self.pct = pct\n    def apply(self, subtotal: float) -> float:\n        return subtotal * (1 - self.pct)\n\nclass ThresholdDiscount(DiscountStrategy):\n    def __init__(self, threshold: float, off: float):\n        self.threshold = threshold\n        self.off = off\n    def apply(self, subtotal: float) -> float:\n        return subtotal - self.off if subtotal >= self.threshold else subtotal\n\ndef main():\n    strategy = PercentageDiscount(0.1)\n    print(strategy.apply(100.0))\n",
     "messed_code": "def total(subtotal, mode, pct=0.0, thr=0.0, off=0.0):\n    if mode==\"none\":\n        return round(subtotal,2)\n    if mode==\"pct\":\n        return round(subtotal*(1-pct),2)\n    if mode==\"thr\":\n        return round(subtotal-off if subtotal>=thr else subtotal,2)\n    return round(subtotal,2)\n",
@@ -132,7 +132,7 @@
   {
     "id": 14,
     "name": "Logger Factory",
-    "description": "Create ConsoleLogger/FileLogger via factory to avoid client conditionals.",
+    "description": "This example demonstrates the Factory Method design pattern for creating logger objects. The goal is to allow a client to request a logger (e.g., 'console' or 'file') without needing to know the specific class names (`ConsoleLogger`, `FileLogger`) or their construction details. A `LoggerFactory` class centralizes the creation logic, taking a string identifier and returning an instance of the appropriate logger. This decouples the client from the concrete logger classes, making the system more flexible and easier to extend with new logger types.",
     "topic": "Factory Method",
     "correct_code": "from abc import ABC, abstractmethod\n\nclass Logger(ABC):\n    @abstractmethod\n    def log(self, msg: str) -> None: ...\n\nclass ConsoleLogger(Logger):\n    def log(self, msg: str) -> None:\n        print(msg)\n\nclass FileLogger(Logger):\n    def __init__(self, path: str = \"app.log\"):\n        self.path = path\n    def log(self, msg: str) -> None:\n        with open(self.path, \"a\", encoding=\"utf-8\") as f:\n            f.write(msg + \"\\n\")\n\nclass LoggerFactory:\n    @staticmethod\n    def create(kind: str) -> Logger:\n        if kind == \"console\":\n            return ConsoleLogger()\n        if kind == \"file\":\n            return FileLogger()\n        raise ValueError(\"Unknown logger kind\")\n\ndef main():\n    logger = LoggerFactory.create(\"console\")\n    logger.log(\"Test message\")\n",
     "messed_code": "def make_logger(kind):\n    if kind==\"console\":\n        return lambda msg: print(msg)\n    elif kind==\"file\":\n        def log(msg):\n            f=open(\"app.log\",\"a\")\n            f.write(msg+\"\\n\")\n            f.close()\n        return log\n    else:\n        return None\n",
@@ -142,7 +142,7 @@
   {
     "id": 15,
     "name": "Shape Factory",
-    "description": "Create Circle/Rectangle via factory; each exposes area().",
+    "description": "This function illustrates the Factory Method pattern for creating objects of different shapes, such as circles and rectangles. All shape classes inherit from a common abstract `Shape` base class, which enforces a contract that they must implement an `area()` method. The `ShapeFactory` centralizes the instantiation logic, allowing the client to create a specific shape object by providing its name and dimensions. This abstracts away the creation process and allows for new shapes to be added without changing the client code.",
     "topic": "Factory Method",
     "correct_code": "from abc import ABC, abstractmethod\nimport math\n\nclass Shape(ABC):\n    @abstractmethod\n    def area(self) -> float: ...\n\nclass Circle(Shape):\n    def __init__(self, r: float):\n        self.r = r\n    def area(self) -> float:\n        return math.pi * self.r * self.r\n\nclass Rectangle(Shape):\n    def __init__(self, w: float, h: float):\n        self.w, self.h = w, h\n    def area(self) -> float:\n        return self.w * self.h\n\nclass ShapeFactory:\n    @staticmethod\n    def create(kind: str, **kwargs) -> Shape:\n        if kind == \"circle\":\n            return Circle(kwargs[\"r\"])\n        if kind == \"rectangle\":\n            return Rectangle(kwargs[\"w\"], kwargs[\"h\"])\n        raise ValueError(\"Unknown shape kind\")\n\ndef main():\n    shape = ShapeFactory.create(\"circle\", r=5.0)\n    print(shape.area())\n",
     "messed_code": "import math\n\ndef area(kind, **k):\n    if kind==\"circle\":\n        return math.pi*(k['r']*k['r'])\n    elif kind==\"rectangle\":\n        return k['w']*k['h']\n    else:\n        return 0\n",
@@ -152,7 +152,7 @@
   {
     "id": 16,
     "name": "Temperature Adapter",
-    "description": "Adapt a Fahrenheit-only sensor to a Celsius interface.",
+    "description": "This example demonstrates the Adapter pattern to resolve an interface incompatibility between two components. We have an existing `FahrenheitSensor` with a method to read temperature in Fahrenheit, but our client system expects an object with a method to read temperature in Celsius. The `FahrenheitToCelsiusAdapter` class wraps the sensor, implements the target interface, and translates the Fahrenheit reading into Celsius, thus allowing the two incompatible components to work together seamlessly.",
     "topic": "Adapter Pattern",
     "correct_code": "class FahrenheitSensor:\n    def read_f(self) -> float:\n        return 77.0\n\nclass CelsiusReader:\n    def read_c(self) -> float: ...\n\nclass FahrenheitToCelsiusAdapter(CelsiusReader):\n    def __init__(self, sensor: FahrenheitSensor):\n        self.sensor = sensor\n    def read_c(self) -> float:\n        f = self.sensor.read_f()\n        return (f - 32) * 5.0/9.0\n\ndef main():\n    sensor = FahrenheitSensor()\n    adapter = FahrenheitToCelsiusAdapter(sensor)\n    print(adapter.read_c())\n",
     "messed_code": "class FahrenheitSensor:\n    def read(self):\n        return 77\n\nclass CelsiusReader:\n    def read(self):\n        s=FahrenheitSensor()\n        f=s.read()\n        return (f-32)*5/9\n",
@@ -162,7 +162,7 @@
   {
     "id": 17,
     "name": "Logger Interface Adapter",
-    "description": "Wrap a third-party logger that expects write(msg) into a log(msg) interface.",
+    "description": "This code illustrates the Adapter pattern by creating a bridge between our application's internal logging interface and an incompatible third-party logging library. Our system uses a `Logger` interface with a `log(msg)` method, but the external library provides a `ThirdPartyWriter` with a `write(msg)` method. The `WriterLoggerAdapter` class wraps the third-party writer and implements our `Logger` interface, translating calls from `log(msg)` to `write(msg)` so the external library can be used within our system without modification.",
     "topic": "Adapter Pattern",
     "correct_code": "class ThirdPartyWriter:\n    def write(self, msg: str) -> None:\n        print(msg)\n\nclass Logger:\n    def log(self, msg: str) -> None: ...\n\nclass WriterLoggerAdapter(Logger):\n    def __init__(self, writer: ThirdPartyWriter):\n        self.writer = writer\n    def log(self, msg: str) -> None:\n        self.writer.write(msg)\n\ndef main():\n    writer = ThirdPartyWriter()\n    logger = WriterLoggerAdapter(writer)\n    logger.log(\"Test message\")\n",
     "messed_code": "class ThirdPartyWriter:\n    def write(self,msg):\n        print(msg)\n\nclass Logger:\n    def log(self,msg):\n        print(msg)\n",
@@ -172,7 +172,7 @@
   {
     "id": 18,
     "name": "Stock Ticker Observer",
-    "description": "Notify observers when a stock price updates.",
+    "description": "This example implements the Observer design pattern to create a stock price notification system. A central `StockTicker` (the 'subject') maintains a list of interested 'observers'. When the price of a stock is updated in the ticker, it automatically notifies all subscribed observers by calling their `update` method. This pattern creates a one-to-many dependency between objects, allowing the state of one object (the ticker) to be broadcast to many others without the subject needing to know about the concrete classes of its observers.",
     "topic": "Observer Pattern",
     "correct_code": "from typing import Protocol, List\n\nclass Observer(Protocol):\n    def update(self, symbol: str, price: float) -> None: ...\n\nclass StockTicker:\n    def __init__(self):\n        self._observers: List[Observer] = []\n    def subscribe(self, obs: Observer) -> None:\n        self._observers.append(obs)\n    def unsubscribe(self, obs: Observer) -> None:\n        self._observers.remove(obs)\n    def set_price(self, symbol: str, price: float) -> None:\n        for o in list(self._observers):\n            o.update(symbol, price)\n",
     "messed_code": "class StockTicker:\n    def __init__(self):\n        self.obs=[]\n    def sub(self,o):\n        self.obs.append(o)\n    def price(self,sym,pr):\n        for o in self.obs:\n            o.update(sym,pr)\n",
@@ -182,7 +182,7 @@
   {
     "id": 19,
     "name": "Chat Room Notifications",
-    "description": "Observers get a callback when a new message is posted.",
+    "description": "This code demonstrates the Observer design pattern in the context of a chat application. The `ChatRoom` acts as the 'subject,' and various clients or UI components can act as 'listeners' (observers). When a new message is posted to the chat room, it iterates through its list of registered listeners and invokes an `on_message` callback on each one. This decouples the chat room from the specific components that need to react to new messages, enabling a flexible and dynamic notification system.",
     "topic": "Observer Pattern",
     "correct_code": "from typing import Protocol, List\n\nclass Listener(Protocol):\n    def on_message(self, text: str) -> None: ...\n\nclass ChatRoom:\n    def __init__(self):\n        self._listeners: List[Listener] = []\n    def join(self, l: Listener) -> None:\n        self._listeners.append(l)\n    def leave(self, l: Listener) -> None:\n        self._listeners.remove(l)\n    def post(self, text: str) -> None:\n        for l in list(self._listeners):\n            l.on_message(text)\n",
     "messed_code": "class ChatRoom:\n    def __init__(self):\n        self.l=[]\n    def join(self,x):\n        self.l.append(x)\n    def post(self,t):\n        for i in self.l:\n            i.on_message(t)\n",
@@ -192,7 +192,7 @@
   {
     "id": 20,
     "name": "Timing Decorator",
-    "description": "Decorate a function to measure and print execution time.",
+    "description": "This example showcases the Decorator pattern by creating a `@timed` decorator that measures and prints the execution time of any function it wraps. The decorator adds this timing functionality without altering the original function's source code. It works by defining a wrapper function that records the start time, executes the original function, records the end time, and then prints the elapsed duration. This is a powerful technique for adding cross-cutting concerns like logging or performance monitoring.",
     "topic": "Decorator Pattern",
     "correct_code": "import time\nfrom typing import Callable\n\ndef timed(fn: Callable) -> Callable:\n    def wrapper(*args, **kwargs):\n        start = time.time()\n        try:\n            return fn(*args, **kwargs)\n        finally:\n            elapsed = (time.time() - start) * 1000\n            print(f\"{fn.__name__} took {elapsed:.2f} ms\")\n    return wrapper\n\ndef example():\n    print(\"Running example\")\n\ndef main():\n    timed_example = timed(example)\n    timed_example()\n",
     "messed_code": "import time\n\ndef timed(fn):\n    def w(*a,**k):\n        s=time.time()\n        r=fn(*a,**k)\n        print(fn.__name__,\"took\",(time.time()-s)*1000,\"ms\")\n        return r\n    return w\n\ndef example():\n    print(\"Running example\")\n\ndef main():\n    timed_example = timed(example)\n    timed_example()\n",
@@ -202,7 +202,7 @@
   {
     "id": 21,
     "name": "Auth Decorator",
-    "description": "Add an authorization check before running a handler.",
+    "description": "This code demonstrates the Decorator pattern for implementing authorization checks. A `require_role` decorator is created to protect a function, ensuring it can only be executed by a user with a specific role. The decorator wraps the target function in a layer of security logic that inspects the user object. If the user's role matches the required role, the original function is called; otherwise, a `PermissionError` is raised. This allows for clean separation of authorization logic from business logic.",
     "topic": "Decorator Pattern",
     "correct_code": "from typing import Callable\n\ndef require_role(role: str):\n    def decorator(fn: Callable) -> Callable:\n        def wrapper(user, *args, **kwargs):\n            if getattr(user, \"role\", None) != role:\n                raise PermissionError(\"forbidden\")\n            return fn(user, *args, **kwargs)\n        return wrapper\n    return decorator\n\nclass User:\n    def __init__(self, role):\n        self.role = role\n\ndef example(user):\n    print(f\"Access granted for {user.role}\")\n\ndef main():\n    user = User(\"admin\")\n    auth_example = require_role(\"admin\")(example)\n    auth_example(user)\n",
     "messed_code": "def require_role(role):\n    def d(fn):\n        def w(u,*a,**k):\n            if not hasattr(u,'role') or u.role!=role:\n                return None\n            return fn(u,*a,**k)\n        return w\n    return d\n\nclass User:\n    def __init__(self, role):\n        self.role = role\n\ndef example(u):\n    print(f\"Access granted for {u.role}\")\n\ndef main():\n    user = User(\"admin\")\n    auth_example = require_role(\"admin\")(example)\n    auth_example(user)\n",

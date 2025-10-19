@@ -1,7 +1,6 @@
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Sparkles } from "lucide-react";
 import { Card } from "./ui/card";
-import Loader from "./Loader";
 
 const AiSuggestions = ({
   data,
@@ -13,7 +12,7 @@ const AiSuggestions = ({
   return (
     <TabsContent value="ai_suggestions" className="p-6 m-0">
       {isLoading ? (
-        <Loader />
+        <p>Trying to come up for the best hints...</p>
       ) : data ? (
         <div>
           <h1 className="text-md">{data.answer}</h1>

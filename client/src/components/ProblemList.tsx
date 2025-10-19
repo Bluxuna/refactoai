@@ -8,7 +8,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { useState } from "react";
 import { Card } from "./ui/card";
 import { useQuery } from "@tanstack/react-query";
-import Loader from "./Loader";
+import Loading from "./Loader";
 import { grouper } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
@@ -23,7 +23,7 @@ function ProblemList() {
     },
   });
 
-  if (isLoading) return <Loader />;
+  if (isLoading) return <Loading />;
   if (isError) return <div>Error detected</div>;
 
   return (
@@ -99,13 +99,13 @@ function ProblemList() {
                           <div className="mt-2 flex gap-2 px-3">
                             <Link
                               to={`/challenge/${task.id}?mission=refactor`}
-                              className="flex-1"
+                              className="flex-1 rounded-lg border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 px-6 py-3 text-center font-medium text-foreground transition-all duration-300 hover:border-primary/40 hover:from-primary/10 hover:to-primary/20 hover:shadow-lg hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             >
                               Refactor
                             </Link>
                             <Link
                               to={`/challenge/${task.id}?mission=scratch`}
-                              className="flex-1"
+                              className="flex-1 rounded-lg border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 px-6 py-3 text-center font-medium text-foreground transition-all duration-300 hover:border-primary/40 hover:from-primary/10 hover:to-primary/20 hover:shadow-lg hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             >
                               From Scratch
                             </Link>

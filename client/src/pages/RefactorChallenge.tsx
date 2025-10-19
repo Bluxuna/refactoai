@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Editor from "@monaco-editor/react";
 import {
   ResizableHandle,
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { PlayCircle, Sparkles, Send, CheckCircle2, List } from "lucide-react";
-import Loader from "@/components/Loader";
+import Loading from "@/components/Loader";
 import { useTheme } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "react-router-dom";
@@ -18,20 +18,25 @@ import { useParams, useSearchParams } from "react-router-dom";
 import ProblemList from "@/components/ProblemList";
 import AiSuggestions from "@/components/AiSuggestions";
 import CodeRun from "@/components/CodeRun";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ManualCheck from "@/components/ManualCheck";
+import Scores from "./Scores";
+import FailureScores from "./FailureScores";
 
 const RefactorChallenge = () => {
   const [searchParams] = useSearchParams();
   const { id } = useParams<{ id: string }>();
-  const mission = searchParams.get("mission");
   const [code, setCode] = useState<string[]>([""]);
   const [codeString, setCodeString] = useState("");
+  const mission = searchParams.get("mission");
+
+  const query = useQueryClient();
 
   const {
     data: taskData,
     isLoading: isTaskDataLoading,
     error: isTaskError,
+    refetch: refetchTask,
   } = useQuery({
     queryKey: ["task"],
     queryFn: async () => {
@@ -39,17 +44,28 @@ const RefactorChallenge = () => {
         import.meta.env.VITE_API_URL + `/tasks/${id}`
       );
       const data = await response.json();
-
+      console.log("refetching");
       if (mission === "refactor") {
         setCodeString(data.messed_code);
         setCode(data.messed_code.split("\n"));
+      } else if (mission === "scratch") {
+        setCode([]);
+        setCodeString("");
       }
-
       return data;
     },
   });
 
-  const { data: codeCheckData, refetch: codeCheckRefetch } = useQuery({
+  useEffect(() => {
+    query.invalidateQueries({ queryKey: ["task"] });
+  }, [mission]);
+
+  const {
+    data: codeCheckData,
+    isRefetching: isCodeRefetching,
+    isLoading: isCodeLoading,
+    refetch: codeCheckRefetch,
+  } = useQuery({
     queryKey: ["code_check"],
     queryFn: async () => {
       const RunResponse = await fetch(
@@ -79,11 +95,13 @@ const RefactorChallenge = () => {
       return { RunData: RunData.res, ManualCheckerData: ManualCheckerData.res };
     },
     enabled: false,
+    staleTime: 0,
   });
 
   const {
     data: AiSuggestionData,
     isLoading: isAiSuggestionLoading,
+    isRefetching: isAiSuggestRefetching,
     refetch: AiSuggestionRefetch,
   } = useQuery({
     queryKey: ["ai_suggestion"],
@@ -131,7 +149,9 @@ const RefactorChallenge = () => {
   const [activeTab, setActiveTab] = useState("challenge");
   const [bottomTab, setBottomTab] = useState("output");
   const [showProblemList, setShowProblemList] = useState(false);
-  const [showScoreMessage, setShowScoreMessage] = useState(false);
+  const [showScoreMessage, setShowScoreMessage] = useState<boolean | null>(
+    null
+  );
 
   const handleCodeCheck = () => {
     codeCheckRefetch();
@@ -144,8 +164,13 @@ const RefactorChallenge = () => {
   };
 
   const handleSubmit = () => {
-    if (localStorage.getItem("score")) {
-      setShowScoreMessage(true);
+    const score = localStorage.getItem("score");
+    if (score) {
+      if (Number(score) > 90) {
+        setShowScoreMessage(true);
+      } else {
+        setShowScoreMessage(false);
+      }
     } else {
       AiSuggestionRefetch();
     }
@@ -153,9 +178,9 @@ const RefactorChallenge = () => {
 
   const handleSendMessage = async () => {
     if (!chatInput.trim()) return;
+    if (chatMessages[chatMessages.length - 1].role === "user") return;
 
     setChatMessages((prev) => [...prev, { role: "user", content: chatInput }]);
-
     const res = await fetch(import.meta.env.VITE_API_URL + "/chat", {
       method: "POST",
       headers: {
@@ -169,18 +194,23 @@ const RefactorChallenge = () => {
         ),
       }),
     });
+    setChatInput("");
     const data = await res.json();
     setChatMessages((prev) => [
       ...prev,
       { role: "assistant", content: data.content },
     ]);
-    setChatInput("");
+  };
+
+  const close = (failure: boolean) => {
+    setShowScoreMessage(null);
+    if (failure) AiSuggestionRefetch();
+    setBottomTab("ai_suggestions");
   };
 
   // Conditional returns after all hooks
-  if (isTaskDataLoading) return <Loader />;
+  if (isTaskDataLoading) return <Loading />;
   if (isTaskError) return <div>Error detected</div>;
-
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
@@ -216,7 +246,8 @@ const RefactorChallenge = () => {
           <ThemeToggle />
         </div>
       </header>
-
+      {showScoreMessage === true && <Scores close={close} />}
+      {showScoreMessage === false && <FailureScores close={close} />}
       {/* Main Content */}
       <ResizablePanelGroup direction="vertical" className="flex-1">
         <ResizablePanel defaultSize={70} minSize={30}>
@@ -315,6 +346,9 @@ const RefactorChallenge = () => {
                     <Input
                       placeholder="Ask for help..."
                       value={chatInput}
+                      disabled={
+                        chatMessages[chatMessages.length - 1].role === "user"
+                      }
                       onChange={(e) => setChatInput(e.target.value)}
                       onKeyDown={(e) =>
                         e.key === "Enter" && handleSendMessage()
@@ -350,11 +384,17 @@ const RefactorChallenge = () => {
             </TabsList>
 
             <ScrollArea className="flex-1">
-              <CodeRun data={codeCheckData?.RunData || ""} />
-              <ManualCheck data={codeCheckData?.ManualCheckerData || ""} />
+              <CodeRun
+                data={codeCheckData?.RunData || ""}
+                isCodeCheckLoading={isCodeRefetching || isCodeLoading}
+              />
+              <ManualCheck
+                data={codeCheckData?.ManualCheckerData || ""}
+                isLoading={isCodeRefetching || isCodeLoading}
+              />
               <AiSuggestions
                 data={AiSuggestionData}
-                isLoading={isAiSuggestionLoading}
+                isLoading={isAiSuggestRefetching || isAiSuggestionLoading}
               />
             </ScrollArea>
           </Tabs>

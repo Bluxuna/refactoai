@@ -1,9 +1,17 @@
 import { TabsContent } from "@radix-ui/react-tabs";
 
-const CodeRun = ({ data }: { data: string }) => {
+const CodeRun = ({
+  data,
+  isCodeCheckLoading,
+}: {
+  data: string;
+  isCodeCheckLoading: boolean;
+}) => {
   return (
     <TabsContent value="output" className="p-6 m-0">
-      {data ? (
+      {isCodeCheckLoading ? (
+        <div>Running Your Code...</div>
+      ) : data ? (
         <pre
           className={`text-sm font-mono whitespace-pre-wrap ${
             data.startsWith("Error") ? "text-red-500" : "text-green-300"
@@ -13,7 +21,7 @@ const CodeRun = ({ data }: { data: string }) => {
         </pre>
       ) : (
         <p className="text-muted-foreground text-sm">
-          Click "Code Check" or "Submit" to see output here
+          Click "Code Check" to see output here
         </p>
       )}
     </TabsContent>

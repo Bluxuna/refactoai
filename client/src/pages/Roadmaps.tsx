@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,7 +9,6 @@ import {
   Sparkles,
   BookOpen,
   ChevronDown,
-  Loader,
 } from "lucide-react";
 import {
   Collapsible,
@@ -18,6 +17,7 @@ import {
 } from "@/components/ui/collapsible";
 import { grouper } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loader";
 
 const Roadmaps = () => {
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
@@ -30,7 +30,7 @@ const Roadmaps = () => {
     },
   });
 
-  if (isLoading) return <Loader />;
+  if (isLoading) return <Loading />;
   if (isError) return <div>Error detected</div>;
 
   return (
@@ -102,9 +102,6 @@ const Roadmaps = () => {
                             <h3 className="text-xl font-bold mb-2">
                               {topic.topic}
                             </h3>
-                            <p className="text-sm text-muted-foreground">
-                              description
-                            </p>
                           </div>
                         </div>
 

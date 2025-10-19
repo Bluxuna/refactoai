@@ -1,9 +1,18 @@
 from fastapi import FastAPI
 from database.db import engine
 from database.db_models import Base
+from fastapi.middleware.cors import CORSMiddleware
 from backend.routers.routes import app as router
 
 app = FastAPI(title="RefactoAI Backend")
+
+origins = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8000",
+]
 
 app.add_middleware(
     CORSMiddleware,

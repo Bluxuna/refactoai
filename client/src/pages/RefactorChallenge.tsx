@@ -33,14 +33,16 @@ const RefactorChallenge = () => {
   const mission = searchParams.get("mission");
   const [code, setCode] = useState<string[]>([]);
 
-  const {
-    data: taskData,
-    isLoading: isTaskDataLoading,
-    error: isTaskError,
-  } = useQuery({
-    queryKey: ["task"],
-    queryFn: async () => {},
-  });
+  // const {
+  //   data: taskData,
+  //   isLoading: isTaskDataLoading,
+  //   error: isTaskError,
+  // } = useQuery({
+  //   queryKey: ["task"],
+  //   queryFn: async () => {
+  //     return [];
+  //   },
+  // });
 
   const {
     data: codeCheckData,
@@ -48,20 +50,37 @@ const RefactorChallenge = () => {
     isError: isCodeCheckError,
   } = useQuery({
     queryKey: ["code_check"],
-    queryFn: async () => {},
+    queryFn: async () => {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + `/tasks/${id}/run`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ lines: code }),
+        }
+      );
+
+      const data = res.json();
+
+      console.log(data);
+      return [];
+    },
+    enabled: true,
   });
 
-  const {
-    data: AiSuggestionData,
-    isLoading: isAiSuggestionLoading,
-    isError: isAiSuggestionError,
-  } = useQuery({
-    queryKey: ["ai_suggestion"],
-    queryFn: async () => {},
-  });
+  // const {
+  //   data: AiSuggestionData,
+  //   isLoading: isAiSuggestionLoading,
+  //   isError: isAiSuggestionError,
+  // } = useQuery({
+  //   queryKey: ["ai_suggestion"],
+  //   queryFn: async () => {},
+  // });
 
-  if (isTaskDataLoading) return <Loader />;
-  if (isTaskError) return <div>Error detected</div>;
+  // if (isTaskDataLoading) return <Loader />;
+  // if (isTaskError) return <div>Error detected</div>;
 
   const { toast } = useToast();
   const { resolvedTheme } = useTheme();
@@ -79,13 +98,7 @@ const RefactorChallenge = () => {
   const [bottomTab, setBottomTab] = useState("output");
   const [showProblemList, setShowProblemList] = useState(false);
 
-  const handleCodeCheck = () => {
-    setBottomTab("output");
-    toast({
-      title: "Code Check Complete",
-      description: "Your code syntax is valid!",
-    });
-  };
+  const handleCodeCheck = () => {};
 
   const handleGetSuggestions = () => {
     setBottomTab("suggestions");

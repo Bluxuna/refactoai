@@ -2,15 +2,33 @@ from fastapi import FastAPI, HTTPException,APIRouter
 from dotenv import load_dotenv
 import os
 from database.db_models import Task
+from fastapi.middleware.cors import CORSMiddleware
+
 from typing import List, Optional, Dict
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from agentic.tools import ScriptRunner,CodeChecker
 from agentic.main import Assistant_agent
+
 from pydantic import BaseModel
 load_dotenv()
 app = APIRouter()
+# CORS middleware
+origins = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8000",
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class Database_Crud:
     def __init__(self):
@@ -118,7 +136,7 @@ def run_code_by_task_id(task_id: int, request: str):
 
     return {"res": response}
 
-@app.routes("/chat")
+@app.get("/chat")
 def chat(messages:dict):
     agent = Assistant_agent()
     response = agent.invoke_llm_for_chat(messages)

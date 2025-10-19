@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException,APIRouter
 from dotenv import load_dotenv
 import os
 from database.db_models import Task
-from typing import List, Optional
+from typing import List, Optional, Dict
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from agentic.tools import ScriptRunner,CodeChecker
@@ -117,5 +117,18 @@ def run_code_by_task_id(task_id: int, request: str):
     response = agent.run(problem,pylint_report,task.correct_code, code)
 
     return {"res": response}
+
+@app.routes("/chat")
+def chat(messages:dict):
+    agent = Assistant_agent()
+    response = agent.invoke_llm_for_chat(messages)
+
+    return response
+
+
+
+
+
+
 
 

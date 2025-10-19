@@ -135,10 +135,12 @@ const RefactorChallenge = () => {
 
   const handleCodeCheck = () => {
     codeCheckRefetch();
+    setBottomTab("output");
   };
 
   const handleGetSuggestions = () => {
     AiSuggestionRefetch();
+    setBottomTab("ai_suggestions");
   };
 
   const handleSubmit = () => {
@@ -340,7 +342,7 @@ const RefactorChallenge = () => {
             <TabsList className="w-full justify-start rounded-none border-t bg-muted/30">
               <TabsTrigger value="output">Output</TabsTrigger>
               {codeCheckData?.ManualCheckerData.length > 0 && (
-                <TabsTrigger value="small_improvements">
+                <TabsTrigger value="manual_check">
                   Small Improvements
                 </TabsTrigger>
               )}

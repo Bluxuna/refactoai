@@ -135,7 +135,9 @@ Your JSON format must strictly adhere to the following schema:
                 "A conceptual and strategic suggestion based on code principles or design patterns.",
                 "A hint addressing a Pylint finding, structure, or naming convention.",
                 "A final piece of guidance focused on Pythonic idioms or overall maintainability."
-            ]
+            ],
+            "score" : from 0 to 100 based on our code check.
+            
         }}
         """
 

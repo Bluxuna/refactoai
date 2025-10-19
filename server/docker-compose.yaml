@@ -11,9 +11,6 @@ services:
       - DATABASE_PATH=/app/data/tasks.db
       - JSON_FILE_PATH=/app/clean_code_tasks_no_type.json
       - GROQ_API_KEY=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
-    volumes:
-      - .:/app
-      - ./data:/app/data
     restart: unless-stopped
 
 networks:

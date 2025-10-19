@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/resizable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,35 +23,49 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "react-router-dom";
 import { useParams, useSearchParams } from "react-router-dom";
 import ProblemList from "@/components/ProblemList";
+import AiSuggestions from "@/components/AiSuggestions";
+import CodeRun from "@/components/CodeRun";
 import { useQuery } from "@tanstack/react-query";
-import Hints from "./Hints";
 
 const RefactorChallenge = () => {
   const [searchParams] = useSearchParams();
   const { id } = useParams<{ id: string }>();
   const mission = searchParams.get("mission");
+  const [code, setCode] = useState<string[]>([]);
 
-  // const { data, isLoading, isError } = useQuery({
-  //   queryKey: ["topics"],
-  //   queryFn: async () => {
-  //     return [];
-  //   },
-  // });
+  const {
+    data: taskData,
+    isLoading: isTaskDataLoading,
+    error: isTaskError,
+  } = useQuery({
+    queryKey: ["task"],
+    queryFn: async () => {},
+  });
 
-  // if (isLoading) return <Loader />;
-  // if (isError) return <div>Error detected</div>;
+  const {
+    data: codeCheckData,
+    isLoading: isCodeCheckLoading,
+    isError: isCodeCheckError,
+  } = useQuery({
+    queryKey: ["code_check"],
+    queryFn: async () => {},
+  });
+
+  const {
+    data: AiSuggestionData,
+    isLoading: isAiSuggestionLoading,
+    isError: isAiSuggestionError,
+  } = useQuery({
+    queryKey: ["ai_suggestion"],
+    queryFn: async () => {},
+  });
+
+  if (isTaskDataLoading) return <Loader />;
+  if (isTaskError) return <div>Error detected</div>;
 
   const { toast } = useToast();
   const { resolvedTheme } = useTheme();
-  const [code, setCode] = useState(`def calc(a, b, c):
-    x = a + b
-    y = x * c
-    if y > 100:
-        return True
-    return False`);
 
-  const [output, setOutput] = useState("");
-  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [chatMessages, setChatMessages] = useState<
     { role: string; content: string }[]
   >([
@@ -66,85 +79,8 @@ const RefactorChallenge = () => {
   const [bottomTab, setBottomTab] = useState("output");
   const [showProblemList, setShowProblemList] = useState(false);
 
-  // Topics with exercises
-  const topics = [
-    {
-      id: 1,
-      title: "Introduction to Design Patterns",
-      description:
-        "Understand what design patterns are, why they exist, and how they help you build scalable, maintainable systems.",
-      tasks: [
-        { id: 1, name: "Identify Pattern Smells", difficulty: "Easy" },
-        { id: 2, name: "Refactor Legacy Code", difficulty: "Medium" },
-      ],
-    },
-    {
-      id: 2,
-      title: "Singleton Pattern",
-      description:
-        "Ensure a class has only one instance. Learn when and how to use this pattern safely without creating global chaos.",
-      tasks: [
-        { id: 5, name: "Fix Thread-Safe Singleton", difficulty: "Hard" },
-        { id: 6, name: "Eliminate Global State", difficulty: "Medium" },
-      ],
-    },
-    {
-      id: 3,
-      title: "Factory Pattern",
-      description:
-        "Centralize object creation logic. Learn how factories decouple your code from specific class implementations.",
-      tasks: [
-        {
-          id: 9,
-          name: "Extract Factory from Constructor",
-          difficulty: "Medium",
-        },
-        { id: 10, name: "Remove Tight Coupling", difficulty: "Hard" },
-      ],
-    },
-    {
-      id: 4,
-      title: "Observer Pattern",
-      description:
-        "Create a subscription mechanism to notify multiple objects about events that happen to the object they're observing.",
-      tasks: [
-        { id: 13, name: "Replace Polling with Events", difficulty: "Medium" },
-        { id: 14, name: "Decouple Event Handlers", difficulty: "Medium" },
-      ],
-    },
-  ];
-
-  const challenge = {
-    id: "messy-threshold-check",
-    title: "Threshold Calculator",
-    description:
-      "In clean code challenges, we use design patterns and best practices to write maintainable code.",
-    details: `This function checks if a calculated value exceeds a threshold. Your task is to refactor it using:
-    
-- Descriptive variable and function names
-- Type hints for all parameters
-- A clear docstring
-- Proper return type annotation
-- Eliminate magic numbers`,
-    messyCode: `def calc(a, b, c):
-    x = a + b
-    y = x * c
-    if y > 100:
-        return True
-    return False`,
-    hints: [
-      "Use descriptive names instead of x, y, a, b, c",
-      "Add type hints: def function_name(param: type) -> return_type",
-      "Include a docstring explaining what the function does",
-      "Consider extracting the magic number 100 into a named constant",
-    ],
-  };
-
   const handleCodeCheck = () => {
     setBottomTab("output");
-    setOutput(
-      "Running code check...\n\n✓ Syntax valid\n✓ Code structure looks good\n\nNote: This is a mock output. Full execution requires backend setup."
-    );
     toast({
       title: "Code Check Complete",
       description: "Your code syntax is valid!",
@@ -153,13 +89,6 @@ const RefactorChallenge = () => {
 
   const handleGetSuggestions = () => {
     setBottomTab("suggestions");
-    setSuggestions([
-      "Consider renaming 'calc' to 'exceeds_threshold' for clarity",
-      "Add type hints: def exceeds_threshold(first: float, second: float, multiplier: float) -> bool",
-      "Replace magic number 100 with a named constant like THRESHOLD = 100",
-      'Add a docstring: """Check if product of sum and multiplier exceeds threshold."""',
-      "Use descriptive variable names: total instead of x, product instead of y",
-    ]);
     toast({
       title: "AI Suggestions Ready",
       description: "Check the suggestions panel below",
@@ -170,9 +99,6 @@ const RefactorChallenge = () => {
     setBottomTab("output");
     // Mock submission
     const score = Math.floor(Math.random() * 40) + 60;
-    setOutput(
-      `Submission Results:\n\n✓ Code submitted successfully\n✓ Tests passed: 3/3\n\nClean Code Score: ${score}/100\n\nFeedback:\n- Good use of descriptive names\n- Type hints present\n- Consider adding more detailed documentation\n\nNote: This is a mock result. Backend integration required for real scoring.`
-    );
     toast({
       title: "Code Submitted!",
       description: `Score: ${score}/100`,
@@ -251,22 +177,17 @@ const RefactorChallenge = () => {
                   onValueChange={setActiveTab}
                   className="flex-1 flex flex-col min-h-0"
                 >
-                  <TabsList className="w-full justify-start rounded-none border-b bg-muted/30 flex-shrink-0">
-                    <TabsTrigger value="challenge">Challenge</TabsTrigger>
-                    <TabsTrigger value="attempts">Hints</TabsTrigger>
-                  </TabsList>
-
                   <ScrollArea className="flex-1 min-h-0">
                     <TabsContent value="challenge" className="p-6 m-0 h-full">
                       <div className="space-y-6">
                         <div>
                           <h2 className="text-2xl font-bold mb-4">Challenge</h2>
                           <p className="text-muted-foreground mb-4">
-                            {challenge.description}
+                            some description we will get from db
                           </p>
                         </div>
 
-                        <div>
+                        {/* <div>
                           <h3 className="font-semibold mb-3">Hints</h3>
                           <div className="space-y-2">
                             {challenge.hints.map((hint, idx) => (
@@ -275,12 +196,8 @@ const RefactorChallenge = () => {
                               </Card>
                             ))}
                           </div>
-                        </div>
+                        </div> */}
                       </div>
-                    </TabsContent>
-
-                    <TabsContent value="attempts" className="p-6 m-0">
-                      <Hints />
                     </TabsContent>
                   </ScrollArea>
                 </Tabs>
@@ -295,8 +212,13 @@ const RefactorChallenge = () => {
                 <Editor
                   height="100%"
                   defaultLanguage="python"
-                  value={code}
-                  onChange={(value) => setCode(value || "")}
+                  value={code[0]}
+                  onChange={(value) => {
+                    const codeString = value || "";
+                    const codeLines = codeString.split("\n");
+                    console.log("Code lines:", codeLines);
+                    setCode(codeLines);
+                  }}
                   theme={resolvedTheme === "light" ? "light" : "vs-dark"}
                   options={{
                     minimap: { enabled: false },
@@ -376,39 +298,8 @@ const RefactorChallenge = () => {
             </TabsList>
 
             <ScrollArea className="flex-1">
-              <TabsContent value="output" className="p-6 m-0">
-                {output ? (
-                  <pre className="text-sm font-mono whitespace-pre-wrap">
-                    {output}
-                  </pre>
-                ) : (
-                  <p className="text-muted-foreground text-sm">
-                    Click "Code Check" or "Submit" to see output here
-                  </p>
-                )}
-              </TabsContent>
-
-              <TabsContent value="suggestions" className="p-6 m-0">
-                {suggestions.length > 0 ? (
-                  <div className="space-y-3">
-                    {suggestions.map((suggestion, idx) => (
-                      <Card
-                        key={idx}
-                        className="p-4 border-l-4 border-l-primary"
-                      >
-                        <div className="flex items-start gap-3">
-                          <Sparkles className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                          <p className="text-sm">{suggestion}</p>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground text-sm">
-                    Click "AI Suggestions" to get refactoring tips
-                  </p>
-                )}
-              </TabsContent>
+              <CodeRun />
+              <AiSuggestions />
             </ScrollArea>
           </Tabs>
         </ResizablePanel>

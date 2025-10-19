@@ -68,17 +68,17 @@ def to_task_full(task: Task) -> TaskResponse:
 # ───────────────────────────────────────────────
 
 # /topics  → list all unique topics
-@router.get("/topics", summary="List all available topics")
+@router.get("/tasks", summary="List all available topics")
 def list_topics(db: Session = Depends(get_db)):
     # Fetch all Task rows
     rows = db.execute(select(Task)).scalars().all()
 
     # Return only id, name, and topic
-    return {"topics": [{"id": task.id, "name": task.name, "topic": task.topic} for task in rows]}
+    return {"tasks": [{"id": task.id, "name": task.name, "topic": task.topic} for task in rows]}
 
 
 # /topics/{topic}/task={id}  → single task by topic and ID
-@router.get("/topics/task/{task_id}", response_model=TaskSimpleResponse, summary="Get single task")
+@router.get("/tasks/{task_id}", response_model=TaskSimpleResponse, summary="Get single task")
 def task_by_topic_and_id(task_id: int, db: Session = Depends(get_db)):
     t = db.scalars(select(Task).where(Task.id == task_id)).first()
     if not t:

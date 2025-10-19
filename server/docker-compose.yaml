@@ -1,0 +1,18 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: refactoai-server
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./data/tasks.db
+      - DATABASE_PATH=/app/data/tasks.db
+      - JSON_FILE_PATH=/app/clean_code_tasks_no_type.json
+      - GROQ_API_KEY=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
+    restart: unless-stopped
+
+networks:
+  default:
+    name: refactoai-network

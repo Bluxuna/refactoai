@@ -5,6 +5,14 @@ from backend.routers.routes import app as router
 
 app = FastAPI(title="RefactoAI Backend")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,        # or ["*"] to allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],          # GET, POST, etc.
+    allow_headers=["*"],          # headers like Content-Type
+)
+
 # Create tables if not exist
 Base.metadata.create_all(bind=engine)
 

@@ -1,59 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ArrowLeft, Wrench, Sparkles, BookOpen, ChevronDown } from "lucide-react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useToast } from "@/hooks/use-toast";
-
-const roadmapTopics = [
-  {
-    id: 1,
-    title: "Introduction to Design Patterns",
-    description: "Understand what design patterns are, why they exist, and how they help you build scalable, maintainable systems.",
-    level: "Beginner",
-    tasks: [
-      { id: 1, name: "Identify Pattern Smells", difficulty: "Easy" },
-      { id: 2, name: "Refactor Legacy Code", difficulty: "Medium" },
-    ],
-  },
-  {
-    id: 2,
-    title: "Singleton Pattern",
-    description: "Ensure a class has only one instance. Learn when and how to use this pattern safely without creating global chaos.",
-    level: "Beginner",
-    tasks: [
-      { id: 5, name: "Fix Thread-Safe Singleton", difficulty: "Hard" },
-      { id: 6, name: "Eliminate Global State", difficulty: "Medium" },
-    ],
-  },
-  {
-    id: 3,
-    title: "Factory Pattern",
-    description: "Centralize object creation logic. Learn how factories decouple your code from specific class implementations.",
-    level: "Intermediate",
-    tasks: [
-      { id: 9, name: "Extract Factory from Constructor", difficulty: "Medium" },
-      { id: 10, name: "Remove Tight Coupling", difficulty: "Hard" },
-    ],
-  },
-  {
-    id: 4,
-    title: "Observer Pattern",
-    description: "Create a subscription mechanism to notify multiple objects about events that happen to the object they're observing.",
-    level: "Intermediate",
-    tasks: [
-      { id: 13, name: "Replace Polling with Events", difficulty: "Medium" },
-      { id: 14, name: "Decouple Event Handlers", difficulty: "Medium" },
-    ],
-  },
-];
+import {
+  ArrowLeft,
+  Wrench,
+  Sparkles,
+  BookOpen,
+  ChevronDown,
+  Loader,
+} from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { grouper } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 const Roadmaps = () => {
-  const { toast } = useToast();
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["topics"],
+    queryFn: async () => {
+      return await grouper();
+    },
+  });
+
+  if (isLoading) return <Loader />;
+  if (isError) return <div>Error detected</div>;
 
   return (
     <div className="min-h-screen bg-background">
@@ -80,7 +58,9 @@ const Roadmaps = () => {
               Your Path to Clean Code Mastery
             </h2>
             <p className="text-lg text-muted-foreground">
-              Master design patterns through hands-on practice. Each topic includes refactoring challenges and from-scratch exercises to solidify your understanding.
+              Master design patterns through hands-on practice. Each topic
+              includes refactoring challenges and from-scratch exercises to
+              solidify your understanding.
             </p>
           </div>
         </div>
@@ -93,11 +73,11 @@ const Roadmaps = () => {
             <div className="relative">
               {/* Connecting Line */}
               <div className="absolute left-[60px] top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-secondary to-accent opacity-20" />
-              
+
               <div className="space-y-16">
-                {roadmapTopics.map((topic, index) => (
-                  <div 
-                    key={topic.id} 
+                {data?.map((topic, index) => (
+                  <div
+                    key={index}
                     className="relative flex items-start gap-8 animate-fade-in"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
@@ -107,9 +87,6 @@ const Roadmaps = () => {
                         <div className="text-center">
                           <div className="text-4xl font-bold text-primary-foreground mb-1">
                             {index + 1}
-                          </div>
-                          <div className="text-xs text-primary-foreground/80 font-medium">
-                            {topic.level}
                           </div>
                         </div>
                       </div>
@@ -122,8 +99,12 @@ const Roadmaps = () => {
                       <div className="space-y-4">
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <h3 className="text-xl font-bold mb-2">{topic.title}</h3>
-                            <p className="text-sm text-muted-foreground">{topic.description}</p>
+                            <h3 className="text-xl font-bold mb-2">
+                              {topic.topic}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              description
+                            </p>
                           </div>
                         </div>
 
@@ -136,68 +117,77 @@ const Roadmaps = () => {
 
                         <div className="pt-2">
                           <Collapsible
-                            open={openDropdownId === topic.id}
+                            open={openDropdownId === index}
                             onOpenChange={(open) => {
-                              setOpenDropdownId(open ? topic.id : null);
+                              setOpenDropdownId(open ? index : null);
                               if (!open) setSelectedTaskId(null);
                             }}
                           >
                             <CollapsibleTrigger asChild>
-                              <Button variant="outline" size="sm" className="group">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="group"
+                              >
                                 View Tasks
-                                <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${
-                                  openDropdownId === topic.id ? 'rotate-180' : ''
-                                }`} />
+                                <ChevronDown
+                                  className={`w-4 h-4 ml-2 transition-transform ${
+                                    openDropdownId === index ? "rotate-180" : ""
+                                  }`}
+                                />
                               </Button>
                             </CollapsibleTrigger>
-                            
+
                             <CollapsibleContent className="mt-4">
                               <div className="space-y-2 bg-muted/50 p-4 rounded-lg border">
                                 {topic.tasks.map((task) => (
                                   <div key={task.id}>
-                                    <Card 
+                                    <Card
                                       className={`p-3 hover:bg-card transition-colors cursor-pointer ${
-                                        selectedTaskId === task.id ? 'ring-2 ring-primary' : ''
+                                        selectedTaskId === task.id
+                                          ? "ring-2 ring-primary"
+                                          : ""
                                       }`}
                                       onClick={() => {
-                                        setSelectedTaskId(selectedTaskId === task.id ? null : task.id);
+                                        setSelectedTaskId(
+                                          selectedTaskId === task.id
+                                            ? null
+                                            : task.id
+                                        );
                                       }}
                                     >
                                       <div className="flex items-center justify-between">
-                                        <span className="text-sm font-medium">{task.name}</span>
-                                        <span className={`text-xs px-2 py-1 rounded-full ${
-                                          task.difficulty === 'Easy' 
-                                            ? 'bg-success/20 text-success' 
-                                            : task.difficulty === 'Medium'
-                                            ? 'bg-warning/20 text-warning'
-                                            : 'bg-destructive/20 text-destructive'
-                                        }`}>
-                                          {task.difficulty}
+                                        <span className="text-sm font-medium">
+                                          {task.name}
                                         </span>
                                       </div>
                                     </Card>
-                                    
+
                                     {/* Mode Selection Buttons */}
                                     {selectedTaskId === task.id && (
                                       <div className="mt-2 flex gap-2 px-3 animate-fade-in">
-                                        <Button 
-                                          variant="outline" 
-                                          size="sm" 
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
                                           className="flex-1 group"
                                           asChild
                                         >
-                                          <Link to="/challenge/messy-threshold-check">
+                                          <Link
+                                            to={`/challenge/${task.id}?mission=refactor`}
+                                          >
                                             <Wrench className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
                                             Refactor
                                           </Link>
                                         </Button>
-                                        <Button 
-                                          variant="outline" 
-                                          size="sm" 
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
                                           className="flex-1 group"
                                           asChild
                                         >
-                                          <Link to="/challenge/messy-threshold-check">
+                                          <Link
+                                            to={`/challenge/${task.id}?mission=scratch`}
+                                          >
                                             <Sparkles className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
                                             From Scratch
                                           </Link>

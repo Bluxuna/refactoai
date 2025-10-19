@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: refactoai-server
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./data/tasks.db
+      - GROQ_API_KEY=${GROQ_API_KEY}
+    env_file:
+      - .env.docker
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    restart: unless-stopped
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+networks:
+  default:
+    name: refactoai-network

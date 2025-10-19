@@ -117,7 +117,7 @@ class MathOperations:
         self.start_value = calculate_sum(self.start_value, i)
         return self.start_value
 
-if __name__ == '__main__':check
+if __name__ == '__main__':
     X = calculate_sum(10, 5)
     ops = MathOperations(X)
     Y = ops.add(5)
